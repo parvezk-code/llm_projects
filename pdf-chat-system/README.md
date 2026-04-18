@@ -61,6 +61,17 @@ OPENAI_BASE_URL=https://openrouter.ai/api/v1
 
 The same pattern works for local runners that expose an OpenAI-compatible API (Ollama, LM Studio, vLLM, etc.) — set `OPENAI_BASE_URL` to their endpoint and `OPENAI_MODEL` to whatever model they serve.
 
+### Sign in with ChatGPT (Plus/Pro)
+
+As an alternative to an API key, the sidebar has a "Sign in with ChatGPT" button that authenticates against `auth.openai.com` via OAuth (PKCE), persists tokens to `./.pdf-chat/auth.json`, and routes requests to the Codex responses endpoint that a ChatGPT subscription covers.
+
+Caveats — read before using:
+
+- This reuses the OpenAI Codex CLI's public OAuth client ID and hits `https://chatgpt.com/backend-api/codex/responses`, which is not a published public API. Both things are ToS grey areas. OpenAI could break or disallow this at any time. Use for personal tooling only.
+- Only Codex-family models are reachable via this path: `gpt-5.1-codex`, `gpt-5.1-codex-mini`, `gpt-5.1-codex-max`, `gpt-5.2-codex`, `gpt-5.3-codex`. Pick one in the sidebar after signing in.
+- The `OPENAI_MODEL` env var does not apply in this mode.
+- To sign out, click **Sign out**, or delete `./.pdf-chat/auth.json`.
+
 ## Run
 
 ```bash

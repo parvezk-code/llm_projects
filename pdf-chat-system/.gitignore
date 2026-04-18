@@ -1,5 +1,6 @@
 .env
 .venv/
+.pdf-chat/
 __pycache__/
 *.pyc
 .DS_Store

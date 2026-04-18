@@ -1,7 +1,10 @@
 import hashlib
+import time
+import webbrowser
 
 import streamlit as st
 
+import auth
 from llm_client import chat, fit_pdf_to_context
 from pdf_extractor import ExtractedDoc, extract
 
@@ -17,6 +20,10 @@ def _file_hash(data: bytes) -> str:
 def _init_state() -> None:
     st.session_state.setdefault("history", [])
     st.session_state.setdefault("uploader_key", 0)
+    st.session_state.setdefault("auth_mode", "ChatGPT" if auth.load_auth() else "API key")
+    st.session_state.setdefault("oauth_model", auth.DEFAULT_OAUTH_MODEL)
+    st.session_state.setdefault("login_handle", None)
+    st.session_state.setdefault("login_started_at", None)
 
 
 def _reset_pdf() -> None:
@@ -25,8 +32,92 @@ def _reset_pdf() -> None:
     st.session_state["uploader_key"] += 1
 
 
+def _poll_login() -> None:
+    handle: auth.LoginHandle | None = st.session_state.get("login_handle")
+    if handle is None:
+        return
+    try:
+        stored = handle.poll()
+    except RuntimeError as e:
+        st.session_state["login_handle"] = None
+        st.session_state["login_started_at"] = None
+        st.error(f"Sign-in failed: {e}")
+        return
+
+    if stored is not None:
+        st.session_state["login_handle"] = None
+        st.session_state["login_started_at"] = None
+        st.success("Signed in with ChatGPT.")
+        st.rerun()
+        return
+
+    started = st.session_state.get("login_started_at") or time.time()
+    if time.time() - started > 180:
+        handle.cancel()
+        st.session_state["login_handle"] = None
+        st.session_state["login_started_at"] = None
+        st.error("Sign-in timed out. Try again.")
+        return
+
+    time.sleep(1.0)
+    st.rerun()
+
+
+def _auth_panel() -> None:
+    st.header("Auth")
+    stored = auth.load_auth()
+
+    mode = st.radio(
+        "Mode",
+        options=["ChatGPT", "API key"],
+        key="auth_mode",
+        horizontal=True,
+    )
+
+    if mode == "ChatGPT":
+        if stored is None:
+            if st.session_state.get("login_handle") is not None:
+                st.info("Complete sign-in in your browser. Waiting for callback…")
+                if st.button("Cancel sign-in"):
+                    st.session_state["login_handle"].cancel()
+                    st.session_state["login_handle"] = None
+                    st.session_state["login_started_at"] = None
+                    st.rerun()
+            else:
+                if st.button("Sign in with ChatGPT"):
+                    try:
+                        handle = auth.start_login()
+                    except OSError as e:
+                        st.error(
+                            f"Could not start local callback server on port {auth.OAUTH_REDIRECT_PORT}: {e}"
+                        )
+                        return
+                    st.session_state["login_handle"] = handle
+                    st.session_state["login_started_at"] = time.time()
+                    webbrowser.open(handle.authorize_url)
+                    st.rerun()
+        else:
+            label = stored.email or stored.account_id or "ChatGPT account"
+            st.caption(f"Signed in as **{label}**")
+            st.selectbox(
+                "Model",
+                options=list(auth.OAUTH_MODELS),
+                key="oauth_model",
+                help="All Codex-addressable models. Not every slug is active on every plan; if one 400s, try another.",
+            )
+            if st.button("Sign out"):
+                auth.logout()
+                st.rerun()
+    else:
+        if stored is not None:
+            st.caption("ChatGPT tokens are still stored. They will be ignored while API key mode is active.")
+        st.caption("Using `OPENAI_API_KEY` and `OPENAI_MODEL` from `.env`.")
+
+
 def _sidebar() -> None:
     with st.sidebar:
+        _auth_panel()
+        st.divider()
         st.header("Session")
         if st.button("Clear conversation"):
             st.session_state["history"] = []
@@ -73,9 +164,18 @@ def _render_pdf_panel() -> ExtractedDoc | None:
     return doc
 
 
+def _resolve_oauth_model() -> str | None:
+    if st.session_state.get("auth_mode") != "ChatGPT":
+        return None
+    if auth.load_auth() is None:
+        return None
+    return st.session_state.get("oauth_model") or auth.DEFAULT_OAUTH_MODEL
+
+
 def main() -> None:
     _init_state()
     _sidebar()
+    _poll_login()
     doc = _render_pdf_panel()
 
     for msg in st.session_state["history"]:
@@ -98,7 +198,7 @@ def main() -> None:
     with st.chat_message("assistant"):
         with st.spinner("Thinking..."):
             try:
-                reply = chat(prior_history, doc.text, prompt)
+                reply = chat(prior_history, doc.text, prompt, oauth_model=_resolve_oauth_model())
             except RuntimeError as e:
                 reply = f"**Error:** {e}"
             except Exception as e:
