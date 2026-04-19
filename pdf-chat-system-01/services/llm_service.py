@@ -47,15 +47,22 @@ class LLMService:
         history: list[dict],
         pdf_text: str,
         prompt: str,
+        auth_mode: str,
         oauth_model: str | None = None,
     ) -> str:
         """
         Send the conversation to the LLM and return the reply string.
         Raises RuntimeError or Exception on failure.
         """
-        stored = self._auth_service.load_stored_auth()
-        if stored is not None:
-            return self._chat_via_oauth(stored, history, pdf_text, prompt, oauth_model)
+        use_oauth = (auth_mode or "").strip().lower() == "chatgpt"
+        if use_oauth:
+            stored = self._auth_service.load_stored_auth()
+            if stored is None:
+                raise RuntimeError("Sign in with ChatGPT or switch to API key mode.")
+            return self._chat_via_oauth(
+                stored, history, pdf_text, prompt, oauth_model
+            )
+
         return self._chat_via_api_key(history, pdf_text, prompt)
 
     def check_truncation(self, pdf_text: str) -> bool:

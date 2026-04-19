@@ -217,6 +217,7 @@ class AppController:
                     history=prior_history,
                     pdf_text=doc.text,
                     prompt=prompt,
+                    auth_mode=self._state.get_auth_mode(),
                     oauth_model=self._resolve_oauth_model(),
                 )
             except RuntimeError as e:
