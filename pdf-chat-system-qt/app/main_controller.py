@@ -15,28 +15,23 @@ from app.models.state.app_state import AppState
 class MainController:
 
     def __init__(self, window: QMainWindow):
+        self._ui: UIBundle = UIComposer().build(window)         # Build UI 
+        self._svc: ServiceBundle = ServiceComposer().build()    # Build Services 
+        self._state = AppState()                                # Initialize state 
+        self._bind_signals()                                    # Bind signals to handlers 
 
-        # --- Build UI ---
-        self._ui: UIBundle = UIComposer().build(window)
+    @property
+    def ui(self) -> UIBundle:
+        return self._ui
 
-        # --- Build Services ---
-        self._svc: ServiceBundle = ServiceComposer().build()
-
-        # --- Initialize state ---
-        self._state = AppState()
-
-        # --- Bind signals to handlers ---
-        self._bind_signals()
-
-    # -------------------------------------------------------------------------
-    # Signal Binding
-    # -------------------------------------------------------------------------
-
+    # Bind all signals(events to controller methods)
     def _bind_signals(self):
         self._ui.toolbar.bind_upload_requested( self._on_upload_clicked )
         self._ui.toolbar.bind_clear_clicked( self._on_clear_clicked )
         self._ui.status_bar.bind_dismissed( self._on_status_bar_dismissed )
         self._ui.input_bar.bind_send_clicked( self._on_send_clicked )
+        # theme_changed
+        # self._ui.toolbar.bind_theme_changed( )
 
     # -------------------------------------------------------------------------
     # Event Handlers
@@ -62,13 +57,10 @@ class MainController:
         self._state.error = None
 
         # Update UI
-        self._ui.toolbar.show_pdf(pdf)
+        self._ui.toolbar.on_pdf_loaded(pdf)
         self._ui.status_bar.hide_error()
-        self._ui.chat_area.clear_bubbles()
-        self._ui.chat_area.show_placeholder() if not self._state.messages \
-            else self._ui.chat_area.hide_placeholder()
-        self._ui.chat_area.hide_placeholder()
-        self._ui.input_bar.set_enabled(True)
+        self._ui.chat_area.emptyAllChats()
+        self._ui.input_bar.enableInput()
 
     def _on_status_bar_dismissed(self):
         # E-03: status_bar_dismissed
@@ -81,7 +73,6 @@ class MainController:
         # Step 1 — Read input
         text = self._ui.input_bar.get_text()
         if not text:
-            self._on_empty_query()
             return
 
         # Step 2 — Create user ChatMessage
@@ -89,8 +80,8 @@ class MainController:
 
         # Step 3-5 — Update state and UI for loading
         self._state.is_loading = True
-        self._ui.chat_area.show_loading()
-        self._ui.input_bar.set_enabled(False)
+        self._ui.chat_area.waitForLLMCall()
+        self._ui.input_bar.disableInput()
 
         # Step 6 — Build LLMTransaction and invoke LLM
         transaction = LLMTransaction(
@@ -111,19 +102,18 @@ class MainController:
         self._state.is_loading = False
 
         # Steps 11-15 — Update UI
-        self._ui.chat_area.hide_loading()
-        self._ui.chat_area.add_message_bubble(transaction.user_message)
-        self._ui.chat_area.add_message_bubble(transaction.response)
-        self._ui.input_bar.set_enabled(True)
+        self._ui.chat_area.handleNewMessage(transaction.user_message, transaction.response)
+        self._ui.toolbar.on_chat_updated()
+        self._ui.input_bar.enableInput()
         self._ui.input_bar.clear_input()
 
     def _on_clear_clicked(self):
         # E-05: chat_cleared
         self._state.messages = []
         self._state.error = None
-        self._ui.chat_area.clear_bubbles()
-        self._ui.chat_area.show_placeholder()
+        self._ui.chat_area.emptyAllChats()
         self._ui.status_bar.hide_error()
+        self._ui.toolbar.on_chat_cleared()
 
     # -------------------------------------------------------------------------
     # Error Handlers
@@ -132,15 +122,11 @@ class MainController:
     def _on_pdf_load_failed(self, message: str):
         self._state.error = message
         self._ui.status_bar.show_error(message)
-        self._ui.input_bar.set_enabled(False)
+        self._ui.input_bar.disableInput()
 
     def _on_llm_call_failed(self, message: str):
         self._state.is_loading = False
         self._state.error = message
-        self._ui.chat_area.hide_loading()
-        self._ui.chat_area.add_error_bubble(message)
-        self._ui.input_bar.set_enabled(True)
-
-    def _on_empty_query(self):
-        self._ui.chat_area.add_error_bubble(
-            "Please enter a question before sending.")
+        self._ui.chat_area.handleFailedLLMCall(message)
+        self._ui.toolbar.on_llm_call_failed()
+        self._ui.input_bar.enableInput()

@@ -19,12 +19,12 @@ class InputBarComponent(QWidget):
         self._message_input.setPlaceholderText("Ask a question...")
         self._message_input.setFixedHeight(36)
         self._message_input.setEnabled(False)
-        self._message_input.setStyleSheet("font-size: 14px; padding: 4px 8px;")
+        self._message_input.setObjectName("messageInput")
 
         self._send_btn = QPushButton("Send")
         self._send_btn.setFixedSize(72, 36)
         self._send_btn.setEnabled(False)
-        self._send_btn.setStyleSheet("font-size: 14px;")
+        self._send_btn.setObjectName("sendBtn")
 
     def _create_layout(self):
         layout = QHBoxLayout()

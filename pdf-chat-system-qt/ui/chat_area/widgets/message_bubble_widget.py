@@ -18,30 +18,13 @@ class MessageBubbleWidget(QWidget):
         self._bubble_label.setWordWrap(True)
         self._bubble_label.setMaximumWidth(450)
 
+        # Set object name for QSS styling
         if self._role == "user":
-            self._bubble_label.setStyleSheet("""
-                background-color: #DCF8C6;
-                color: #000000;
-                border-radius: 12px;
-                padding: 8px 14px;
-                font-size: 14px;
-            """)
+            self._bubble_label.setObjectName("userBubble")
         elif self._role == "assistant":
-            self._bubble_label.setStyleSheet("""
-                background-color: #E8E8E8;
-                color: #000000;
-                border-radius: 12px;
-                padding: 8px 14px;
-                font-size: 14px;
-            """)
+            self._bubble_label.setObjectName("assistantBubble")
         elif self._role == "error":
-            self._bubble_label.setStyleSheet("""
-                background-color: #FFDEDE;
-                color: #CC0000;
-                border-radius: 12px;
-                padding: 8px 14px;
-                font-size: 14px;
-            """)
+            self._bubble_label.setObjectName("errorBubble")
 
     def _create_layout(self):
         layout = QHBoxLayout()

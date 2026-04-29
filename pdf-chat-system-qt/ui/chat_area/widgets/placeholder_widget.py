@@ -14,11 +14,11 @@ class PlaceholderWidget(QWidget):
     def _create_widgets(self):
         self._icon_label = QLabel("📄")
         self._icon_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        self._icon_label.setStyleSheet("font-size: 48px;")
+        self._icon_label.setObjectName("placeholderIcon")
 
         self._hint_label = QLabel("Upload a PDF to start chatting")
         self._hint_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        self._hint_label.setStyleSheet("font-size: 14px; color: #888888;")
+        self._hint_label.setObjectName("placeholderHint")
 
     def _create_layout(self):
         layout = QVBoxLayout()

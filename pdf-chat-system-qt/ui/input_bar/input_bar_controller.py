@@ -19,5 +19,8 @@ class InputBarController:
     def clear_input(self):
         self._component.clear_input()
 
-    def set_enabled(self, enabled: bool):
-        self._component.set_enabled(enabled)
+    def enableInput(self):
+        self._component.set_enabled(True)
+
+    def disableInput(self):
+        self._component.set_enabled(False)

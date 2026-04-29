@@ -14,13 +14,7 @@ class LoadingBubbleWidget(QWidget):
     def _create_widgets(self):
         self._dots_label = QLabel("● ● ●")
         self._dots_label.setAlignment(Qt.AlignmentFlag.AlignLeft)
-        self._dots_label.setStyleSheet("""
-            background-color: #E8E8E8;
-            color: #888888;
-            border-radius: 12px;
-            padding: 8px 14px;
-            font-size: 14px;
-        """)
+        self._dots_label.setObjectName("loadingDots")
 
     def _create_layout(self):
         layout = QHBoxLayout()

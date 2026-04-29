@@ -1,6 +1,18 @@
 > Controller Architecture
 ---
 
+### General flow of any GUI APP
+
+- User interact with UI
+- Event is genarated
+- Update UI before performing domain action(service call)
+- Perform domain action(servcice call)
+- Update UI
+
+interaction --->  event --->  update UI   --->  service call  ---> update UI
+ 
+---
+
 ```
                          ┌──────────────────────┐
                          │  Domain Controller   │
@@ -51,9 +63,15 @@
 
 | Class | Type | Fields |
 |---|---|---|
-| `AppControllers` | `@dataclass(frozen=True)` | one field for each component controller |
+| `AppControllers`    | `@dataclass(frozen=True)` | one field for each component controller |
 | `DomainControllers` | `@dataclass(frozen=True)` | one field for each domain controller |
 
+
+## Models (Not implemented so far)
+
+| Class | Type | Fields |
+|---|---|---|
+| `EventModels` | `@dataclass` | one for each event. Passes to various controllers. Stores everything. Lives as long as event lives. Type of noteshet |
 ---
 
 
@@ -116,6 +134,7 @@ MainController
 - Emit a external signal when a user interaction occurs
 - Handle internal signals (scrolling, focus, hover, animations)
 - Manage Internal UI State
+- If possible prefer external styling over inline(internal) styling of UI Widgets.
 - Never call the controller directly
 - Never read from or write to another component
 - do not decide what happens after an event
@@ -188,6 +207,7 @@ MainController
 
 ## Models
   - Use Pydantic only at boundaries where data comes from outside. Use dataclass for internal app models.
+  - Event Models : created one for each event. Passes to various controllers. Stores everything. Lives as long as event lives. Type of notesheet that records everything from start of an event till event handling finishes.
 
 > we have try catch to handle same error in both DomainController and MainController. DomainController catches Raw library exceptions and raises clean domain error. MainController catches Clean domain errors and decides what to do next. This is the standard pattern for layered architectures. Each layer only speaks the language of the layer above it.
 
