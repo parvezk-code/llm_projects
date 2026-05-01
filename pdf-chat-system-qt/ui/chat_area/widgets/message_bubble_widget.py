@@ -18,7 +18,6 @@ class MessageBubbleWidget(QWidget):
         self._bubble_label.setWordWrap(True)
         self._bubble_label.setMaximumWidth(450)
 
-        # Set object name for QSS styling
         if self._role == "user":
             self._bubble_label.setObjectName("userBubble")
         elif self._role == "assistant":
@@ -38,3 +37,15 @@ class MessageBubbleWidget(QWidget):
             layout.addStretch()
 
         self.setLayout(layout)
+
+    # --- Public accessors ---
+
+    def get_role(self) -> str:
+        return self._role
+
+    def get_content(self) -> str:
+        return self._content
+
+    def update_content(self, content: str):
+        self._content = content
+        self._bubble_label.setText(content)

@@ -72,6 +72,13 @@ interaction --->  event --->  update UI   --->  service call  ---> update UI
 | Class | Type | Fields |
 |---|---|---|
 | `EventModels` | `@dataclass` | one for each event. Passes to various controllers. Stores everything. Lives as long as event lives. Type of noteshet |
+
+## App State
+
+| Class | Type | Fields |
+|---|---|---|
+| `AppState` | `@dataclass` | store data that is available to entire app. Survive multiple event calls |
+
 ---
 
 
@@ -161,6 +168,7 @@ MainController
 ## DomainController or ServiceControllers (Key responsibilities)
 
 - A plain class that **handles one domain of business logic or one external service**
+- Can be a Singleton class?
 - Contains only operation methods that are called during event handling
 - It knows nothing about the UI. Never update the UI directly
 - Perform a specific business operation when called
@@ -209,10 +217,30 @@ MainController
   - Use Pydantic only at boundaries where data comes from outside. Use dataclass for internal app models.
   - Event Models : created one for each event. Passes to various controllers. Stores everything. Lives as long as event lives. Type of notesheet that records everything from start of an event till event handling finishes.
 
+## State of the app
+  - if you can creats SQL tables for the data of entire app then it can help understand/manage state easily.
+  - to manage state shoud we create singleton class?
+
+## config files
+  - seprate config files for seprate work - llm, UI, data_base, etc
+  - use Pydantic class to read directly from env file
+  - keep all config in seprate objects and bundel all these objects into single main object.
+
 > we have try catch to handle same error in both DomainController and MainController. DomainController catches Raw library exceptions and raises clean domain error. MainController catches Clean domain errors and decides what to do next. This is the standard pattern for layered architectures. Each layer only speaks the language of the layer above it.
 
 ---
 
+
+## Blocking Vs Async calls
+
+
+| Topic | Blocking Call | Async Call |
+|---|---|---|
+| Qt event loop | Frozen for the duration of the call | Stays alive |
+| User interaction | Impossible — UI cannot respond | Possible — user can still click/interact |
+| Widget guards needed | Usually no — freezing acts like an implicit lock | Yes — guards prevent duplicate/concurrent requests |
+| Spinner / progress feedback | Not renderable — UI is frozen| Works correctly |
+| UI enable/disable action | Usually not useful before the call, because UI freezes anyway | Enable/disable relevant elements before starting the async task |
 
 ## State Change Decision
 

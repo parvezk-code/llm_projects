@@ -26,6 +26,12 @@ chat_pdf/
 │   ├── toolbar/
 │   │   ├── toolbar_component.py         # ToolbarComponent [SMART]
 │   │   └── toolbar_controller.py        # ToolbarController
+│   │   └── widgets/
+│   │       ├── upload_button_widget.py
+│   │       ├── filename_label_widget.py
+│   │       ├── clear_button_widget.py
+│   │       └── theme_combo_widget.py
+│   │
 │   ├── status_bar/
 │   │   ├── status_bar_component.py      # StatusBarComponent [SMART]
 │   │   └── status_bar_controller.py     # StatusBarController
@@ -38,8 +44,10 @@ chat_pdf/
 │   │       └── placeholder_widget.py   # PlaceholderWidget [DUMB]
 │   └── input_bar/
 │       ├── input_bar_component.py       # InputBarComponent [SMART]
-│       └── input_bar_controller.py      # InputBarController
-│
+│       ├── input_bar_controller.py      # InputBarController
+│       └── widgets/
+│           ├── button_widget.py 
+│           └── text_input_widget.py
 │
 ├── services/
 │   ├── service_composer.py              # ServiceComposer — instantiates controllers and 
@@ -57,10 +65,20 @@ chat_pdf/
 │       |                                  calls LLMService, returns LLMTransaction
 │       └── llm_service.py               # LLMService: raw OpenAI API call, simple types only
 │
+│
 ├── config/
-│   └── settings.py                      # Loads .env, exposes OPENAI_API_KEY and config constants
+│   ├── settings/
+│   │   ├── appConfig.py                  # shared/global config
+│   │   ├── openAI.py                     # LLM-specific
+│   │   └── settings.py                   # aggregates all settings
+│   │
+│   └── env/
+│       ├── .env.app                      # shared/global config
+│       └── .env.openAI                   # LLM-specific
+│
 │
 └── utils/                               # Shared helpers (empty for now)
+
 ```
 
 ---

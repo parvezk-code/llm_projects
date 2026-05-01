@@ -13,9 +13,6 @@ class InputBarController:
     def bind_send_clicked(self, handler):
         self._component.send_clicked.connect(handler)
 
-    def get_text(self) -> str:
-        return self._component.get_text()
-
     def clear_input(self):
         self._component.clear_input()
 

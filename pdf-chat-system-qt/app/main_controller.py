@@ -11,14 +11,13 @@ from app.models.services.chat_message import ChatMessage
 from app.models.services.llm_transaction import LLMTransaction
 from app.models.state.app_state import AppState
 
-
 class MainController:
 
     def __init__(self, window: QMainWindow):
-        self._ui: UIBundle = UIComposer().build(window)         # Build UI 
-        self._svc: ServiceBundle = ServiceComposer().build()    # Build Services 
-        self._state = AppState()                                # Initialize state 
-        self._bind_signals()                                    # Bind signals to handlers 
+        self._ui: UIBundle = UIComposer().build(window)         # Build UI
+        self._svc: ServiceBundle = ServiceComposer().build()    # Build Services
+        self._state = AppState()                                # Initialize state
+        self._bind_signals()                                    # Bind signals to handlers
 
     @property
     def ui(self) -> UIBundle:
@@ -26,22 +25,23 @@ class MainController:
 
     # Bind all signals(events to controller methods)
     def _bind_signals(self):
-        self._ui.toolbar.bind_upload_requested( self._on_upload_clicked )
-        self._ui.toolbar.bind_clear_clicked( self._on_clear_clicked )
-        self._ui.status_bar.bind_dismissed( self._on_status_bar_dismissed )
-        self._ui.input_bar.bind_send_clicked( self._on_send_clicked )
+        self._ui.toolbar.bind_upload_requested(self._on_upload_clicked)
+        self._ui.toolbar.bind_clear_clicked(self._on_clear_clicked)
+        self._ui.status_bar.bind_dismissed(self._on_status_bar_dismissed)
+        self._ui.input_bar.bind_send_clicked(self._on_send_clicked)
+        self._ui.file_picker.bind_pdf_selected(self._load_pdf)
+        # self._ui.file_picker.bind_dialog_canceled(self._on_pdf_dialog_canceled)
+        
         # theme_changed
-        # self._ui.toolbar.bind_theme_changed( )
+        # self._ui.toolbar.bind_theme_changed()
 
     # -------------------------------------------------------------------------
     # Event Handlers
     # -------------------------------------------------------------------------
 
     def _on_upload_clicked(self):
-        # E-01: open file picker
-        file_path = self._ui.toolbar.open_file_picker()
-        if file_path:
-            self._load_pdf(file_path)
+        # Open file picker: user will select a pdf to chat
+        self._ui.file_picker.open_pdf()
 
     def _load_pdf(self, file_path: str):
         # E-02: pdf_loaded
@@ -67,23 +67,11 @@ class MainController:
         self._state.error = None
         self._ui.status_bar.hide_error()
 
-    def _on_send_clicked(self):
-        # E-04: message_send_requested
-
-        # Step 1 — Read input
-        text = self._ui.input_bar.get_text()
-        if not text:
-            return
-
-        # Step 2 — Create user ChatMessage
+    def _on_send_clicked(self, text: str):
+        # Create user ChatMessage
         user_message = ChatMessage(role="user", content=text)
 
-        # Step 3-5 — Update state and UI for loading
-        self._state.is_loading = True
-        self._ui.chat_area.waitForLLMCall()
-        self._ui.input_bar.disableInput()
-
-        # Step 6 — Build LLMTransaction and invoke LLM
+        # Build LLMTransaction and invoke LLM
         transaction = LLMTransaction(
             pdf_text=self._state.pdf.full_text,
             history=list(self._state.messages),
@@ -96,15 +84,13 @@ class MainController:
             self._on_llm_call_failed(str(e))
             return
 
-        # Steps 8-10 — Update state
+        # Update state
         self._state.messages.append(transaction.user_message)
         self._state.messages.append(transaction.response)
-        self._state.is_loading = False
 
-        # Steps 11-15 — Update UI
+        # Update UI
         self._ui.chat_area.handleNewMessage(transaction.user_message, transaction.response)
         self._ui.toolbar.on_chat_updated()
-        self._ui.input_bar.enableInput()
         self._ui.input_bar.clear_input()
 
     def _on_clear_clicked(self):
@@ -114,6 +100,7 @@ class MainController:
         self._ui.chat_area.emptyAllChats()
         self._ui.status_bar.hide_error()
         self._ui.toolbar.on_chat_cleared()
+        self._ui.input_bar.disableInput()
 
     # -------------------------------------------------------------------------
     # Error Handlers
@@ -122,11 +109,9 @@ class MainController:
     def _on_pdf_load_failed(self, message: str):
         self._state.error = message
         self._ui.status_bar.show_error(message)
-        self._ui.input_bar.disableInput()
 
     def _on_llm_call_failed(self, message: str):
-        self._state.is_loading = False
         self._state.error = message
-        self._ui.chat_area.handleFailedLLMCall(message)
+        # self._ui.chat_area.handleFailedLLMCall(message)
+        self._ui.status_bar.show_error(message)
         self._ui.toolbar.on_llm_call_failed()
-        self._ui.input_bar.enableInput()

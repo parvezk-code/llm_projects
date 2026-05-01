@@ -18,26 +18,33 @@ class LLMController:
 
     def ask(self, transaction: LLMTransaction) -> LLMTransaction:
         try:
-            # Convert history to raw dicts for LLMService
-            history_dicts = [
-                {"role": msg.role, "content": msg.content}
-                for msg in transaction.history
-            ]
-
-            raw_response = self._service.call(
-                pdf_text=transaction.pdf_text,
-                history=history_dicts,
-                user_message=transaction.user_message.content
-            )
-
-            transaction.response = ChatMessage(
-                role="assistant",
-                content=raw_response
-            )
-
+            messages = self._build_messages(transaction)
+            raw_response = self._service.call(messages)
+            transaction.response = ChatMessage(role="assistant", content=raw_response)
             return transaction
 
         except Exception as e:
             raise LLMCallError(
-                f"Could not reach OpenAI API. Check your connection."
+                "Could not reach OpenAI API. Check your connection."
             ) from e
+
+    # -------------------------------------------------------------------------
+    # Helpers
+    # -------------------------------------------------------------------------
+
+    def _build_messages(self, transaction: LLMTransaction) -> list[dict]:
+        messages = [{"role": "system", "content": self._get_system_prompt(transaction.pdf_text)}]
+
+        for msg in transaction.history:
+            messages.append({"role": msg.role, "content": msg.content})
+
+        messages.append({"role": "user", "content": transaction.user_message.content})
+
+        return messages
+
+    def _get_system_prompt(self, pdf_text: str) -> str:
+        return (
+            "You are a helpful assistant. "
+            "Answer questions based on the following PDF document:\n\n"
+            f"{pdf_text}"
+        )

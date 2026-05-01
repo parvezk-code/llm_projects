@@ -1,6 +1,5 @@
 # ui/toolbar/toolbar_controller.py
 
-from PyQt6.QtWidgets import QFileDialog
 from ui.toolbar.toolbar_component import ToolbarComponent
 from app.models.services.pdf_document import PDFDocument
 
@@ -17,15 +16,6 @@ class ToolbarController:
 
     def bind_clear_clicked(self, handler):
         self._component.clear_clicked.connect(handler)
-
-    def open_file_picker(self) -> str | None:
-        file_path, _ = QFileDialog.getOpenFileName(
-            self._component,
-            "Open PDF File",
-            "",
-            "PDF Files (*.pdf)"
-        )
-        return file_path if file_path else None
 
     # --- Event handlers ---
 

@@ -1,10 +1,9 @@
 # ui/chat_area/chat_area_component.py
 
-from PyQt6.QtWidgets import (QWidget, QVBoxLayout, QScrollArea)
+from PyQt6.QtWidgets import QWidget, QVBoxLayout, QScrollArea
 from PyQt6.QtCore import Qt
 from ui.chat_area.widgets.placeholder_widget import PlaceholderWidget
 from ui.chat_area.widgets.message_bubble_widget import MessageBubbleWidget
-from ui.chat_area.widgets.loading_bubble_widget import LoadingBubbleWidget
 
 
 class ChatAreaComponent(QWidget):
@@ -31,12 +30,7 @@ class ChatAreaComponent(QWidget):
 
         # Dumb child widgets
         self._placeholder = PlaceholderWidget()
-        self._loading_bubble = LoadingBubbleWidget()
-        self._loading_bubble.setVisible(False)
-
-        # Add placeholder to scroll layout
         self._scroll_layout.addWidget(self._placeholder)
-        self._scroll_layout.addWidget(self._loading_bubble)
 
         self._scroll_area.setWidget(self._scroll_content)
 
@@ -46,16 +40,33 @@ class ChatAreaComponent(QWidget):
         layout.addWidget(self._scroll_area)
         self.setLayout(layout)
 
-    # --- Accessors for ChatAreaController ---
+    # --- Called by ChatAreaController ---
 
-    def get_scroll_area(self) -> QScrollArea:
-        return self._scroll_area
+    def add_message(self, role: str, content: str):
+        bubble = MessageBubbleWidget(role=role, content=content)
+        self._scroll_layout.addWidget(bubble)
+        self._scroll_to_bottom()
 
-    def get_scroll_layout(self) -> QVBoxLayout:
-        return self._scroll_layout
+    def show_error(self, message: str):
+        bubble = MessageBubbleWidget(role="error", content=message)
+        self._scroll_layout.addWidget(bubble)
+        self._scroll_to_bottom()
 
-    def get_placeholder(self) -> PlaceholderWidget:
-        return self._placeholder
+    def clear_messages(self):
+        for i in reversed(range(self._scroll_layout.count())):
+            widget = self._scroll_layout.itemAt(i).widget()
+            if isinstance(widget, MessageBubbleWidget):
+                self._scroll_layout.removeWidget(widget)
+                widget.deleteLater()
+        self._placeholder.setVisible(True)
 
-    def get_loading_bubble(self) -> LoadingBubbleWidget:
-        return self._loading_bubble
+    # --- Internal ---
+
+    def _scroll_to_bottom(self):
+        scroll_bar = self._scroll_area.verticalScrollBar()
+
+        def on_range_changed(min, max):
+            scroll_bar.setValue(max)
+            scroll_bar.rangeChanged.disconnect(on_range_changed)
+
+        scroll_bar.rangeChanged.connect(on_range_changed)
