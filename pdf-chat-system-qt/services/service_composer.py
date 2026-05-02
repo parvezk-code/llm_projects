@@ -5,7 +5,7 @@ from services.pdf.pdf_controller import PDFController
 from services.llm.llm_service import LLMService
 from services.llm.llm_controller import LLMController
 from services.service_bundle import ServiceBundle
-from conf.settings.settings import AppSettings
+from conf.settings.config_bundle import AppSettings
 
 
 class ServiceComposer:

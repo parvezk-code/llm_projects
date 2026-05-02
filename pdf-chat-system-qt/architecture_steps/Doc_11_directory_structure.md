@@ -9,17 +9,30 @@ root(chat pdf app)/
 ├── requirements.txt
 │
 ├── app/
-│   ├── main_controller.py               # MainController — orchestrates all event flows
+│   ├── main_controller.py                # MainController:  orchestrates all event flows
+│   │
+│   ├── event_handlers/
+|   |   ├── pdf/
+|   |   │   ├── upload_pdf_handler.py     # Full PDF upload flow
+|   |   │   └── remove_pdf_handler.py     # PDF removal
+|   |   │
+|   |   ├── chat/
+|   |   │   ├── send_message_handler.py   # Single chat with llm 
+|   |   │   └── clear_chat_handler.py     # Clear all chats
+|   |   │
+|   |   └── ui/
+│   │       └── theme_changed_handler.py  # Stub — receives theme_name, will apply it
+│   │
 │   └── models/
 │       ├── services/
-│       │   ├── pdf_document.py          # PDFDocument dataclass
+│       │   ├── pdf_document.py           # PDFDocument dataclass
 │       │   ├── llm_transaction.py        # LLMTransaction dataclass
-│       │   └── chat_message.py          # ChatMessage dataclass
+│       │   └── chat_message.py           # ChatMessage dataclass
 │       └── state/
-│           ├── app_state.py             # AppState dataclass
-│           ├── app_state_store.py       # future/planned only. Currently app is without store.
-│           └── app_error.py             # future/planned only. This file not needed (AppError dataclass)
-│
+│           ├── app_state.py              # AppState dataclass
+│           ├── app_state_store.py        # future/planned only. Currently app is without store.
+│           └── app_error.py              # future/planned only. This file not needed (AppError dataclass)
+│   
 ├── ui/
 │   ├── ui_composer.py                   # UIComposer — builds all UI, returns UIBundle
 │   ├── ui_bundle.py                     # UIBundle frozen dataclass
@@ -76,7 +89,7 @@ root(chat pdf app)/
 │   ├── settings/
 │   │   ├── appConfig.py                  # shared/global config
 │   │   ├── openAI.py                     # LLM-specific
-│   │   └── settings.py                   # aggregates all settings
+│   │   └── config_bundle.py              # aggregates all settings
 │   │
 │   └── env/
 │       ├── .env.app                      # shared/global config 
@@ -97,7 +110,12 @@ root(chat pdf app)/
 | File | Contains |
 |---|---|
 | `main.py` | App entry point. Creates `QApplication`, `MainWindow`, instantiates `MainController` |
-| `app/main_controller.py` | All event handlers, signal wiring, `AppState` ownership |
+| `app/main_controller.py` | Slim orchestrator. Builds UI, services, and state. Instantiates all event handlers. Wires signals to handler methods via `_bind_signals`. Owns `AppState`. |
+| `app/event_handlers/pdf/upload_pdf_handler.py` | Handles the full PDF upload flow. Opens the file picker on upload click, calls `PDFService` via `PDFController`, updates `AppState`, refreshes toolbar, chat area, and input bar. Handles `PDFLoadError` and surfaces it to the status bar. |
+| `app/event_handlers/pdf/remove_pdf_handler.py` | Handles PDF removal. Clears `state.pdf`, resets message history and error, empties the chat area, and disables input. |
+| `app/event_handlers/chat/send_message_handler.py` | Handles a single chat turn. Builds an `LLMTransaction` from current state, calls `LLMController`, appends both the user message and the LLM response to `AppState`, and updates the chat area and toolbar. Handles `LLMCallError` and surfaces it to the status bar. |
+| `app/event_handlers/chat/clear_chat_handler.py` | Handles chat clear. Resets message history and error in `AppState`, empties the chat area, hides the status bar, and disables input. |
+| `app/event_handlers/ui/theme_changed_handler.py` | Stub handler for theme switching. Receives a `theme_name` string and will apply it to the app stylesheet when implemented. |
 | `app/models/services/pdf_document.py` | `PDFDocument` dataclass |
 | `app/models/services/chat_message.py` | `ChatMessage` dataclass |
 | `app/models/services/llm_transaction.py` | `LLMTransaction` dataclass |
@@ -123,7 +141,7 @@ root(chat pdf app)/
 | `services/llm/llm_service.py` | `LLMService` — raw OpenAI API call, simple types only |
 | `conf/env/.env.app` | Environment values for shared app settings used by `AppConfig` |
 | `conf/settings/openAI.py` | Defines `OpenAIConfig` settings loaded from `conf/env/.env.openAI` and `conf/env/.env.local` |
-| `conf/settings/settings.py` | Buldles objects into AppSettings. These objects expose .env files inside conf/env directory|
+| `conf/settings/config_bundle.py` | Buldles objects into AppSettings. These objects expose .env files inside conf/env directory|
 | `conf/settings/appConfig.py` | Defines `AppConfig` settings loaded from `conf/env/.env.app` |
 | `conf/env/.env.openAI` | Environment values for OpenAI settings used by `OpenAIConfig` |
 | `conf/env/.env.openAI.example` | Example OpenAI environment file template |

@@ -6,3 +6,5 @@ __pycache__/
 .DS_Store
 zz_temp/
 .env.openAI
+.codex
+.codex_memory/
