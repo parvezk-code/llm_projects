@@ -79,10 +79,18 @@ root(chat pdf app)/
 │   │   └── pdf_service.py               # PDFService — raw PyMuPDF text extraction, 
 │   │                                      simple types only
 │   │  
-│   └── llm/
-│       ├── llm_controller.py            # LLMController — receives LLMTransaction,  
-│       |                                  calls LLMService, returns LLMTransaction
-│       └── llm_service.py               # LLMService: raw OpenAI API call, simple types only
+│   ├── llm/
+│   │   ├── llm_controller.py            # LLMController — receives LLMTransaction,  
+│   │   |                                  calls LLMService, returns LLMTransaction
+│   │   └── llm_service.py               # LLMService: raw OpenAI API call, simple types only
+│   │  
+│   └── mcp/
+│       ├── mcp_client_controller.py      #   
+│       |   
+│       ├── mcp_connection_client.py      # 
+|       |
+│       └── models
+│           └── mcp_tool_result.py
 │
 │
 ├── conf/
@@ -100,6 +108,7 @@ root(chat pdf app)/
 ├── styles/                               # contains qss files to style the PyQt6 widgets
 │
 └── utils/                                # Shared helpers (empty for now)
+      └── __init__.py
 
 ```
 
