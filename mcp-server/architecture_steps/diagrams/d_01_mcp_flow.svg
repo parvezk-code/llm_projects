@@ -1,0 +1,91 @@
+<svg width="1000" height="640" xmlns="http://www.w3.org/2000/svg">
+
+  <defs>
+    <marker id="arrow" markerWidth="10" markerHeight="10" refX="10" refY="3" orient="auto">
+      <path d="M0,0 L10,3 L0,6 Z" fill="#555"/>
+    </marker>
+  </defs>
+
+  <!-- ===================== -->
+  <!-- Diagram 1             -->
+  <!-- ===================== -->
+
+  <!-- PDFReaderServer -->
+  <rect x="60" y="60" width="180" height="60" rx="10" fill="#e8f5e9" stroke="#a5d6a7" style="fill:rgb(232, 245, 233);stroke:rgb(165, 214, 167);color:rgb(0, 0, 0);stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;opacity:1;font-family:&quot;Anthropic Sans&quot;, -apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, sans-serif;font-size:16px;font-weight:400;text-anchor:start;dominant-baseline:auto"/>
+  <text x="150" y="96" text-anchor="middle" fill="#1b5e20" font-size="16" style="fill:rgb(27, 94, 32);stroke:none;color:rgb(0, 0, 0);stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;opacity:1;font-family:&quot;Anthropic Sans&quot;, -apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, sans-serif;font-size:16px;font-weight:400;text-anchor:middle;dominant-baseline:auto">PDFReaderServer</text>
+
+  <!-- ExtractPDFTextTool -->
+  <rect x="410" y="60" width="180" height="60" rx="10" fill="#fff3e0" stroke="#ffcc80" style="fill:rgb(255, 243, 224);stroke:rgb(255, 204, 128);color:rgb(0, 0, 0);stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;opacity:1;font-family:&quot;Anthropic Sans&quot;, -apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, sans-serif;font-size:16px;font-weight:400;text-anchor:start;dominant-baseline:auto"/>
+  <text x="500" y="96" text-anchor="middle" fill="#e65100" font-size="16" style="fill:rgb(230, 81, 0);stroke:none;color:rgb(0, 0, 0);stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;opacity:1;font-family:&quot;Anthropic Sans&quot;, -apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, sans-serif;font-size:16px;font-weight:400;text-anchor:middle;dominant-baseline:auto">ExtractPDFTextTool</text>
+
+  <!-- ExtractPDFTextController -->
+  <rect x="760" y="60" width="180" height="60" rx="10" fill="#e3f2fd" stroke="#90caf9" style="fill:rgb(227, 242, 253);stroke:rgb(144, 202, 249);color:rgb(0, 0, 0);stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;opacity:1;font-family:&quot;Anthropic Sans&quot;, -apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, sans-serif;font-size:16px;font-weight:400;text-anchor:start;dominant-baseline:auto"/>
+  <text x="850" y="96" text-anchor="middle" fill="#0d47a1" font-size="16" style="fill:rgb(13, 71, 161);stroke:none;color:rgb(0, 0, 0);stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;opacity:1;font-family:&quot;Anthropic Sans&quot;, -apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, sans-serif;font-size:16px;font-weight:400;text-anchor:middle;dominant-baseline:auto">ExtractPDFController</text>
+
+  <!-- Forward arrow 1: Server → Tool -->
+  <line x1="240" y1="82" x2="410" y2="82" stroke="#555" stroke-width="2" marker-end="url(#arrow)" style="fill:rgb(0, 0, 0);stroke:rgb(85, 85, 85);color:rgb(0, 0, 0);stroke-width:2px;stroke-linecap:butt;stroke-linejoin:miter;opacity:1;font-family:&quot;Anthropic Sans&quot;, -apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, sans-serif;font-size:16px;font-weight:400;text-anchor:start;dominant-baseline:auto"/>
+  <text x="325" y="72" text-anchor="middle" font-size="14" fill="#333" style="fill:rgb(51, 51, 51);stroke:none;color:rgb(0, 0, 0);stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;opacity:1;font-family:&quot;Anthropic Sans&quot;, -apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, sans-serif;font-size:14px;font-weight:400;text-anchor:middle;dominant-baseline:auto">pdf_path: str</text>
+
+  <!-- Return arrow 1: Tool → Server -->
+  <line x1="410" y1="106" x2="240" y2="106" stroke="#555" stroke-width="2" marker-end="url(#arrow)" style="fill:rgb(0, 0, 0);stroke:rgb(85, 85, 85);color:rgb(0, 0, 0);stroke-width:2px;stroke-linecap:butt;stroke-linejoin:miter;opacity:1;font-family:&quot;Anthropic Sans&quot;, -apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, sans-serif;font-size:16px;font-weight:400;text-anchor:start;dominant-baseline:auto"/>
+  <text x="325" y="130" text-anchor="middle" font-size="14" fill="#333" style="fill:rgb(51, 51, 51);stroke:none;color:rgb(0, 0, 0);stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;opacity:1;font-family:&quot;Anthropic Sans&quot;, -apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, sans-serif;font-size:14px;font-weight:400;text-anchor:middle;dominant-baseline:auto">dict (success / error)</text>
+
+  <!-- Forward arrow 2: Tool → Controller -->
+  <line x1="590" y1="82" x2="760" y2="82" stroke="#555" stroke-width="2" marker-end="url(#arrow)" style="fill:rgb(0, 0, 0);stroke:rgb(85, 85, 85);color:rgb(0, 0, 0);stroke-width:2px;stroke-linecap:butt;stroke-linejoin:miter;opacity:1;font-family:&quot;Anthropic Sans&quot;, -apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, sans-serif;font-size:16px;font-weight:400;text-anchor:start;dominant-baseline:auto"/>
+  <text x="675" y="72" text-anchor="middle" font-size="14" fill="#333" style="fill:rgb(51, 51, 51);stroke:none;color:rgb(0, 0, 0);stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;opacity:1;font-family:&quot;Anthropic Sans&quot;, -apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, sans-serif;font-size:14px;font-weight:400;text-anchor:middle;dominant-baseline:auto">ExtractPDFTextRequest</text>
+
+  <!-- Return arrow 2: Controller → Tool -->
+  <line x1="760" y1="106" x2="590" y2="106" stroke="#555" stroke-width="2" marker-end="url(#arrow)" style="fill:rgb(0, 0, 0);stroke:rgb(85, 85, 85);color:rgb(0, 0, 0);stroke-width:2px;stroke-linecap:butt;stroke-linejoin:miter;opacity:1;font-family:&quot;Anthropic Sans&quot;, -apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, sans-serif;font-size:16px;font-weight:400;text-anchor:start;dominant-baseline:auto"/>
+  <text x="675" y="130" text-anchor="middle" font-size="14" fill="#333" style="fill:rgb(51, 51, 51);stroke:none;color:rgb(0, 0, 0);stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;opacity:1;font-family:&quot;Anthropic Sans&quot;, -apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, sans-serif;font-size:14px;font-weight:400;text-anchor:middle;dominant-baseline:auto">ExtractPDFTextResponse</text>
+
+  <!-- ===================== -->
+  <!-- Legend                -->
+  <!-- ===================== -->
+
+  <text x="100" y="200" font-size="15" fill="#333" style="fill:rgb(51, 51, 51);stroke:none;color:rgb(0, 0, 0);stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;opacity:1;font-family:&quot;Anthropic Sans&quot;, -apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, sans-serif;font-size:15px;font-weight:400;text-anchor:start;dominant-baseline:auto">ExtractPDFTextResponse  </text>
+  <text x="300" y="200" font-size="20" fill="#333" style="fill:rgb(51, 51, 51);stroke:none;color:rgb(0, 0, 0);stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;opacity:1;font-family:&quot;Anthropic Sans&quot;, -apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, sans-serif;font-size:18px;font-weight:400;text-anchor:start;dominant-baseline:auto"> =  </text>
+  <text x="362" y="200" font-size="15" fill="#2e7d32" style="fill:rgb(46, 125, 50);stroke:none;color:rgb(0, 0, 0);stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;opacity:1;font-family:&quot;Anthropic Sans&quot;, -apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, sans-serif;font-size:15px;font-weight:400;text-anchor:start;dominant-baseline:auto">ExtractPDFTextSuccessResponse</text>
+  <text x="610" y="200" font-size="15" fill="#333" style="fill:rgb(51, 51, 51);stroke:none;color:rgb(0, 0, 0);stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;opacity:1;font-family:&quot;Anthropic Sans&quot;, -apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, sans-serif;font-size:15px;font-weight:400;text-anchor:start;dominant-baseline:auto">  |  </text>
+  <text x="636" y="200" font-size="15" fill="#c62828" style="fill:rgb(198, 40, 40);stroke:none;color:rgb(0, 0, 0);stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;opacity:1;font-family:&quot;Anthropic Sans&quot;, -apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, sans-serif;font-size:15px;font-weight:400;text-anchor:start;dominant-baseline:auto">ExtractPDFTextErrorResponse</text>
+
+  <!-- ===================== -->
+  <!-- Diagram 2             -->
+  <!-- ===================== -->
+
+  <!-- ExtractPDFTextController -->
+  <rect x="60" y="300" width="180" height="60" rx="10" fill="#e3f2fd" stroke="#90caf9" style="fill:rgb(227, 242, 253);stroke:rgb(144, 202, 249);color:rgb(0, 0, 0);stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;opacity:1;font-family:&quot;Anthropic Sans&quot;, -apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, sans-serif;font-size:16px;font-weight:400;text-anchor:start;dominant-baseline:auto"/>
+  <text x="150" y="336" text-anchor="middle" fill="#0d47a1" font-size="16" style="fill:rgb(13, 71, 161);stroke:none;color:rgb(0, 0, 0);stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;opacity:1;font-family:&quot;Anthropic Sans&quot;, -apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, sans-serif;font-size:16px;font-weight:400;text-anchor:middle;dominant-baseline:auto">ExtractPDFController</text>
+
+  <!-- PDFValidator -->
+  <rect x="760" y="300" width="180" height="60" rx="10" fill="#f3e5f5" stroke="#ce93d8" style="fill:rgb(243, 229, 245);stroke:rgb(206, 147, 216);color:rgb(0, 0, 0);stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;opacity:1;font-family:&quot;Anthropic Sans&quot;, -apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, sans-serif;font-size:16px;font-weight:400;text-anchor:start;dominant-baseline:auto"/>
+  <text x="850" y="336" text-anchor="middle" fill="#6a1b9a" font-size="16" style="fill:rgb(106, 27, 154);stroke:none;color:rgb(0, 0, 0);stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;opacity:1;font-family:&quot;Anthropic Sans&quot;, -apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, sans-serif;font-size:16px;font-weight:400;text-anchor:middle;dominant-baseline:auto">PDFValidator</text>
+
+  <!-- Forward arrow: Controller → Validator -->
+  <line x1="240" y1="322" x2="760" y2="322" stroke="#555" stroke-width="2" marker-end="url(#arrow)" style="fill:rgb(0, 0, 0);stroke:rgb(85, 85, 85);color:rgb(0, 0, 0);stroke-width:2px;stroke-linecap:butt;stroke-linejoin:miter;opacity:1;font-family:&quot;Anthropic Sans&quot;, -apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, sans-serif;font-size:16px;font-weight:400;text-anchor:start;dominant-baseline:auto"/>
+  <text x="500" y="312" text-anchor="middle" font-size="14" fill="#333" style="fill:rgb(51, 51, 51);stroke:none;color:rgb(0, 0, 0);stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;opacity:1;font-family:&quot;Anthropic Sans&quot;, -apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, sans-serif;font-size:14px;font-weight:400;text-anchor:middle;dominant-baseline:auto">pdf_path: str</text>
+
+  <!-- Return arrow: Validator → Controller -->
+  <line x1="760" y1="346" x2="240" y2="346" stroke="#555" stroke-width="2" marker-end="url(#arrow)" style="fill:rgb(0, 0, 0);stroke:rgb(85, 85, 85);color:rgb(0, 0, 0);stroke-width:2px;stroke-linecap:butt;stroke-linejoin:miter;opacity:1;font-family:&quot;Anthropic Sans&quot;, -apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, sans-serif;font-size:16px;font-weight:400;text-anchor:start;dominant-baseline:auto"/>
+  <text x="500" y="370" text-anchor="middle" font-size="14" fill="#333" style="fill:rgb(51, 51, 51);stroke:none;color:rgb(0, 0, 0);stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;opacity:1;font-family:&quot;Anthropic Sans&quot;, -apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, sans-serif;font-size:14px;font-weight:400;text-anchor:middle;dominant-baseline:auto">error:str | None</text>
+
+  <!-- ===================== -->
+  <!-- Diagram 3             -->
+  <!-- ===================== -->
+
+  <!-- ExtractPDFTextController -->
+  <rect x="60" y="500" width="180" height="60" rx="10" fill="#e3f2fd" stroke="#90caf9" style="fill:rgb(227, 242, 253);stroke:rgb(144, 202, 249);color:rgb(0, 0, 0);stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;opacity:1;font-family:&quot;Anthropic Sans&quot;, -apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, sans-serif;font-size:16px;font-weight:400;text-anchor:start;dominant-baseline:auto"/>
+  <text x="150" y="536" text-anchor="middle" fill="#0d47a1" font-size="16" style="fill:rgb(13, 71, 161);stroke:none;color:rgb(0, 0, 0);stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;opacity:1;font-family:&quot;Anthropic Sans&quot;, -apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, sans-serif;font-size:16px;font-weight:400;text-anchor:middle;dominant-baseline:auto">ExtractPDFController</text>
+
+  <!-- PDFReader -->
+  <rect x="760" y="500" width="180" height="60" rx="10" fill="#e8f5e9" stroke="#a5d6a7" style="fill:rgb(232, 245, 233);stroke:rgb(165, 214, 167);color:rgb(0, 0, 0);stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;opacity:1;font-family:&quot;Anthropic Sans&quot;, -apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, sans-serif;font-size:16px;font-weight:400;text-anchor:start;dominant-baseline:auto"/>
+  <text x="850" y="536" text-anchor="middle" fill="#1b5e20" font-size="16" style="fill:rgb(27, 94, 32);stroke:none;color:rgb(0, 0, 0);stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;opacity:1;font-family:&quot;Anthropic Sans&quot;, -apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, sans-serif;font-size:16px;font-weight:400;text-anchor:middle;dominant-baseline:auto">PDFReader</text>
+
+  <!-- Forward arrow: Controller → Reader -->
+  <line x1="240" y1="522" x2="760" y2="522" stroke="#555" stroke-width="2" marker-end="url(#arrow)" style="fill:rgb(0, 0, 0);stroke:rgb(85, 85, 85);color:rgb(0, 0, 0);stroke-width:2px;stroke-linecap:butt;stroke-linejoin:miter;opacity:1;font-family:&quot;Anthropic Sans&quot;, -apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, sans-serif;font-size:16px;font-weight:400;text-anchor:start;dominant-baseline:auto"/>
+  <text x="500" y="512" text-anchor="middle" font-size="14" fill="#333" style="fill:rgb(51, 51, 51);stroke:none;color:rgb(0, 0, 0);stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;opacity:1;font-family:&quot;Anthropic Sans&quot;, -apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, sans-serif;font-size:14px;font-weight:400;text-anchor:middle;dominant-baseline:auto">Path</text>
+
+  <!-- Return arrow: Reader → Controller -->
+  <line x1="760" y1="546" x2="240" y2="546" stroke="#555" stroke-width="2" marker-end="url(#arrow)" style="fill:rgb(0, 0, 0);stroke:rgb(85, 85, 85);color:rgb(0, 0, 0);stroke-width:2px;stroke-linecap:butt;stroke-linejoin:miter;opacity:1;font-family:&quot;Anthropic Sans&quot;, -apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, sans-serif;font-size:16px;font-weight:400;text-anchor:start;dominant-baseline:auto"/>
+  <text x="500" y="570" text-anchor="middle" font-size="14" fill="#333" style="fill:rgb(51, 51, 51);stroke:none;color:rgb(0, 0, 0);stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;opacity:1;font-family:&quot;Anthropic Sans&quot;, -apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, sans-serif;font-size:14px;font-weight:400;text-anchor:middle;dominant-baseline:auto">tuple[str, int]</text>
+
+</svg>

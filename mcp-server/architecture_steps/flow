@@ -1,0 +1,62 @@
+
+i am developing a pyqt6 app and my eventa handling methods are all synchronous because i want to block the UI as soon as the user query arrives till it finishes.
+
+i have a library wher i have a async methods. i need to call after one of my pyqt6 event handlers. how can i call such method.
+
+---------------------------------------------------------------
+
+
+mcpClientController flow
+        ---> use various utility classes to read from mcp server
+        ---> wait for the result
+        ---> return the result to pyqt6 app's main controller
+
+-------------------------------------------------------------------------------------
+
+
+mcpClientController(url, tool, arg) ---> mcp worker  ---> mcpClient ---> mcp server
+
+mcpClientController method A            :       starts worker
+mcpClientController                     :       method A returns
+worker runs                             :       call MCP client (url, tool, arg)
+worker finishes                         :       emits result/error later
+mcpClientController method-X            :       receives signal in another method
+
+
+Main Controller --> MCPClientController(url, tool, args) ---> starts MCPToolWorker
+                --> waits until worker finishes          ---> MCPClientController reads results
+                --> MCPClientController return results
+
+
+----------------------------------------------------------------
+
+
+MainController
+        ↓
+PDFController
+        ↓
+PDFMCPClient
+        ↓
+MCPConnectionClient
+        ↓
+MCP Server
+
+
+
+
+
+--------------------------------------------------------------
+
+
+PyQt6 event handler is sync / non-async
+        ↓
+call MCP client method with url, tool_name, args
+        ↓
+MCP client internally handles async MCP call
+        ↓
+result comes back to UI safely
+
+-----------------------------------------------------------------
+
+
+The main rule: Do not use asyncio.run() inside PyQt event handlers.

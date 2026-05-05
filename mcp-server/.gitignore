@@ -1,0 +1,8 @@
+.env
+.venv/
+__pycache__/
+*.pyc
+zz_temp/
+.codex
+.codex_memory/
+*.codex
