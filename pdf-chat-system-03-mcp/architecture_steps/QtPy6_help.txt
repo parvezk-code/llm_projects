@@ -1,0 +1,23 @@
+
+Components
+
+01).    QWidget         :       Just a Empty Container. cannot scroll on its own.
+
+02).    QLabel          :       A label that display text. Can be multi line.
+
+03).    QPushButton     :       Button
+
+04).    QScrollArea     :       Scrollable area can hold only one single widget(generally QWidget).
+
+05).    QLineEdit       :       single line text input box
+
+
+-------------------------------------------------------------------------------------------------
+
+
+Layout 
+    --> keeps track of no of child components.
+
+01).    QVBoxLayout     :       Adds widgets vertically.
+
+02).    QHBoxLayout     :       Adds widgets horizontally.

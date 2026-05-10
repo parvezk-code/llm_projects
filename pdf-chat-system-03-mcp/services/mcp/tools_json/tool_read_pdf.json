@@ -1,0 +1,12 @@
+{
+  "name": "read_pdf_content",
+  "description": "Read the full text content of a selected PDF file. Use this when the user asks a question that requires PDF content.",
+  "parameters": [
+    {
+      "name": "pdf_path",
+      "type": "string",
+      "description": "Absolute path of the PDF file to read.",
+      "required": true
+    }
+  ]
+}

@@ -1,0 +1,11 @@
+.env
+.venv/
+.pdf-chat/
+__pycache__/
+*.pyc
+.DS_Store
+zz_temp/
+.env.openAI
+.codex
+.codex_memory/
+services/mcp_01/

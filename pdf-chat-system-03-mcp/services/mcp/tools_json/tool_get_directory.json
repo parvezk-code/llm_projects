@@ -1,0 +1,5 @@
+{
+  "name": "get_working_directory",
+  "description": "Get the working documents directory where PDF files are stored. Use this before listing available PDF files.",
+  "parameters": []
+}

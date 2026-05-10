@@ -1,0 +1,12 @@
+{
+  "name": "list_pdfs_in_directory",
+  "description": "List all PDF files available inside a given directory path. Use this after getting the documents directory.",
+  "parameters": [
+    {
+      "name": "directory_path",
+      "type": "string",
+      "description": "Absolute path of the directory whose PDF files should be listed.",
+      "required": true
+    }
+  ]
+}
