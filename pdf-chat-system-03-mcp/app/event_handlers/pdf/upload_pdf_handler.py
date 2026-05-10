@@ -24,13 +24,13 @@ class UploadPDFHandler:
             return
 
         self._state.pdf = pdf
-        self._state.messages = []
-        self._state.error = None
+        # self._state.messages = []
+        # self._state.error = None
 
         self._ui.toolbar.on_pdf_loaded(pdf)
-        self._ui.status_bar.hide_error()
-        self._ui.chat_area.emptyAllChats()
-        self._ui.input_bar.enableInput()
+        # self._ui.status_bar.hide_error()
+        # self._ui.chat_area.emptyAllChats()
+        # self._ui.input_bar.enableInput()
 
     def _on_load_failed(self, message: str):
         self._state.error = message

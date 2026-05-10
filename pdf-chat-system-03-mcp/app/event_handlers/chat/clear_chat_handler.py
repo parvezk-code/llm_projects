@@ -12,6 +12,7 @@ class ClearChatHandler:
 
     def on_clear_clicked(self):
         self._state.messages = []
+        self._state.pdf = None
         self._state.error = None
 
         self._ui.chat_area.emptyAllChats()

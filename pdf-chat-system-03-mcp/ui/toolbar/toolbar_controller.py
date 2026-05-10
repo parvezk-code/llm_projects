@@ -25,6 +25,7 @@ class ToolbarController:
         self._component.set_clear_state("default")
 
     def on_chat_updated(self):
+        self._component.set_clear_enabled(True)
         # self._component.set_clear_state("active")
         pass
 

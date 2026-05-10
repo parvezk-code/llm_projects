@@ -29,8 +29,8 @@ class ChatAreaComponent(QWidget):
         self._scroll_layout.setContentsMargins(8, 8, 8, 8)
 
         # Dumb child widgets
-        self._placeholder = PlaceholderWidget()
-        self._scroll_layout.addWidget(self._placeholder)
+        # self._placeholder = PlaceholderWidget()
+        # self._scroll_layout.addWidget(self._placeholder)
 
         self._scroll_area.setWidget(self._scroll_content)
 
@@ -58,7 +58,7 @@ class ChatAreaComponent(QWidget):
             if isinstance(widget, MessageBubbleWidget):
                 self._scroll_layout.removeWidget(widget)
                 widget.deleteLater()
-        self._placeholder.setVisible(True)
+        # self._placeholder.setVisible(True)
 
     # --- Internal ---
 

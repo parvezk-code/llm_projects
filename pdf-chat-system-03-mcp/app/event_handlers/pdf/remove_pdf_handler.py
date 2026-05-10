@@ -12,10 +12,10 @@ class RemovePDFHandler:
 
     def on_remove(self):
         self._state.pdf = None
-        self._state.messages = []
-        self._state.error = None
+        # self._state.messages = []
+        # self._state.error = None
 
-        self._ui.chat_area.emptyAllChats()
-        self._ui.status_bar.hide_error()
-        self._ui.toolbar.on_chat_cleared()
-        self._ui.input_bar.disableInput()
+        # self._ui.chat_area.emptyAllChats()
+        # self._ui.status_bar.hide_error()
+        # self._ui.toolbar.on_chat_cleared()
+        # self._ui.input_bar.disableInput()

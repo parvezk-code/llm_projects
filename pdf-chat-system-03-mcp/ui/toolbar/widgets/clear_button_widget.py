@@ -13,7 +13,7 @@ class ClearButtonWidget(QPushButton):
     def _setup(self):
         self.setText("Clear")
         self.setFixedHeight(32)
-        # self.setEnabled(False)
+        self.setEnabled(False)
         self.setObjectName("clearBtn")
         self.setProperty("state", "default")
 
