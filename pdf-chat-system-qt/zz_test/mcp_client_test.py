@@ -13,12 +13,12 @@ from services.mcp.mcp_client_controller import MCPClientController
 
 def main() -> None:
     server_url = "http://localhost:8000/mcp"
-    pdf_path = "zz_test/test_doc.pdf"
+    pdf_path = "zz_test/work/test_doc.pdf"
 
     mcp_controller = MCPClientController(server_url)
 
     result = mcp_controller.call_tool_sync(
-        tool_name="extract_pdf_text",
+        tool_name="read_pdf_content",
         arguments={"pdf_path": pdf_path},
     )
 

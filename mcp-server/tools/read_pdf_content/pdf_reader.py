@@ -1,4 +1,4 @@
-# services/pdf_reader.py
+# tools/read_pdf_content/pdf_reader.py
 
 from pathlib import Path
 import fitz  # PyMuPDF
