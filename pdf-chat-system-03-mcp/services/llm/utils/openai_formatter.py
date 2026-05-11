@@ -1,7 +1,7 @@
 # services/llm/utils/openai_formatter.py
 
 from app.models.services.llm_transaction.chat_message import ChatMessage
-from services.mcp.models.mcp_tool_definition import ToolDefinition
+from services.mcp.models.tool_definition import ToolDefinition
 
 
 class OpenAIFormatter:

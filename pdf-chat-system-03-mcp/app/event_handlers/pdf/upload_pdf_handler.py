@@ -1,7 +1,9 @@
 # app/event_handlers/pdf/upload_pdf_handler.py
 
-from services.pdf.pdf_controller import PDFLoadError
+import os
 from app.models.state.app_state import AppState
+from app.models.services.pdf_document import PDFDocument
+from services.document_extractors.pdf.pymupdf.request import PyMuPDFRequest
 from ui.ui_bundle import UIBundle
 from services.service_bundle import ServiceBundle
 
@@ -17,16 +19,22 @@ class UploadPDFHandler:
         self._ui.file_picker.open_pdf()
 
     def on_pdf_selected(self, file_path: str):
-        try:
-            pdf = self._svc.pdf.load(file_path)
-        except PDFLoadError as e:
-            self._on_load_failed(str(e))
+        request = PyMuPDFRequest(file_path=file_path)
+        response = self._svc.pdf.extract(request)
+
+        if response.has_error():
+            self._on_load_failed(response.error)
             return
+
+        pdf = PDFDocument(
+            filename=os.path.basename(file_path),
+            full_text=response.full_text,
+            page_count=response.page_count
+        )
 
         self._state.pdf = pdf
         # self._state.messages = []
         # self._state.error = None
-
         self._ui.toolbar.on_pdf_loaded(pdf)
         # self._ui.status_bar.hide_error()
         # self._ui.chat_area.emptyAllChats()

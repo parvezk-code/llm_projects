@@ -4,40 +4,31 @@ import asyncio
 from typing import Any
 
 from services.mcp.clients.client_async import MCPConnectionClient
+from services.mcp.exceptions import MCPConnectionError, MCPToolExecutionError
 
 
 class SyncConnection:
 
     def __init__(self, server_url: str):
         self.server_url = server_url
-        self.connected: bool = False
-        self.tool_called: bool = False
-        self.closed: bool = False
 
-    def _reset_status(self) -> None:
-        self.connected = False
-        self.tool_called = False
-        self.closed = False
-
-    def run(self, tool_name: str, arguments: dict[str, Any]) -> Any | None:
+    def run(self, tool_name: str, arguments: dict[str, Any]) -> Any:
         return asyncio.run(self._execute(tool_name, arguments))
 
-    async def _execute(self, tool_name: str, arguments: dict[str, Any]) -> Any | None:
-        self._reset_status()
+    async def _execute(self, tool_name: str, arguments: dict[str, Any]) -> Any:
         client = MCPConnectionClient(self.server_url)
 
         try:
             await client.connect()
-            self.connected = True
-
-            result = await client.call_tool(tool_name, arguments)
-            self.tool_called = True
-
-            return result
-
-        except Exception:
-            return None
-
-        finally:
+        except Exception as e:
             await client.close()
-            self.closed = True
+            raise MCPConnectionError("MCP server is not reachable") from e
+
+        try:
+            result = await client.call_tool(tool_name, arguments)
+        except Exception as e:
+            await client.close()
+            raise MCPToolExecutionError("Connected but tool execution failed") from e
+
+        await client.close()
+        return result

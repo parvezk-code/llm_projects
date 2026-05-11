@@ -9,6 +9,7 @@ from ui.ui_bundle import UIBundle
 from services.service_bundle import ServiceBundle
 from services.llm.llm_request import LLMRequest
 from services.llm.llm_response import LLMResponse
+from services.mcp.executor.request import MCPToolRequest
 
 log = logging.getLogger(__name__)
 
@@ -136,11 +137,21 @@ class SendMessageHandler:
 
             log.info("  Calling tool: %s  args: %s", tool_name, arguments)
 
-            result = self._svc.mcp.call(tool_name, arguments)
+            mcp_request = MCPToolRequest(tool_name=tool_name, arguments=arguments)
+            mcp_response = self._svc.mcp.call(mcp_request)
 
-            log.debug("  Tool result  [%s]: %s", tool_name, result)
+            if mcp_response.has_error():
+                tool_result = {
+                    "success": False,
+                    "error_type": mcp_response.error_type,
+                    "error_message": mcp_response.error_message
+                }
+            else:
+                tool_result = mcp_response.result
 
-            request.add_tool_result(tool_call_id, result)
+            log.debug("  Tool result  [%s]: %s", tool_name, tool_result)
+            request.add_tool_result(tool_call_id, tool_result)           
+
 
     # ------------------------------------------------------------------
     # Private — error handling

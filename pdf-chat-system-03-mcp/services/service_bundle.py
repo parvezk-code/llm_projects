@@ -1,12 +1,13 @@
 # services/service_bundle.py
 
-from dataclasses import dataclass
-from services.pdf.pdf_controller import PDFController
+from dataclasses import dataclass                                        # fix typo
+from services.document_extractors.pdf.pymupdf.controller import PyMuPDFController
 from services.llm.llm_controller import LLMController
-from services.mcp.controller import MCPToolController
+from services.mcp.executor.controller import MCPToolController
+
 
 @dataclass(frozen=True)
 class ServiceBundle:
-    pdf: PDFController
+    pdf: PyMuPDFController
     llm: LLMController
     mcp: MCPToolController

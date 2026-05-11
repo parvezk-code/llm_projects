@@ -1,9 +1,9 @@
-# services/pdf/pdf_service.py
+# services/document_extractors/pdf/pymupdf/service.py
 
 import fitz  # PyMuPDF
 
 
-class PDFService:
+class PyMuPDFService:
 
     def extract_text(self, file_path: str) -> tuple[str, int]:
         with fitz.open(file_path) as doc:
