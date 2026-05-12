@@ -1,5 +1,7 @@
+# app/state_controller.py
+
 from dataclasses import dataclass, field
-from app.models.services.llm_transaction.chat_message import ChatMessage
+from app.state.models.chat_message import ChatMessage
 
 
 @dataclass

@@ -3,21 +3,19 @@ from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
 from langchain_core.output_parsers import StrOutputParser
 from langchain_core.messages import BaseMessage
 
+from conf.settings.openai_config import OpenAIConfig
+
 
 class ChainService:
-    """
-    Portable LangChain chain service.
-    No dependency on config objects or any app layer.
-    Accepts plain primitive values only — wired by ChainController.
-    """
 
-    def __init__( self, api_key: str, model: str ) -> None:
+    def __init__( self, config: OpenAIConfig ) -> None:
 
-        self._chain = self.createChain( api_key, model )
+        self._config = config
+        self._chain = self.createChain()
 
-    def createChain( self, api_key: str, model: str ):
+    def createChain( self ):
 
-        llm = ChatOpenAI( api_key=api_key, model=model )
+        llm = self.getModel()
 
         # Convert AIMessage → plain string
         output_parser = StrOutputParser()
@@ -57,3 +55,13 @@ class ChainService:
         prompt = ChatPromptTemplate.from_messages( prompt_messages )
 
         return prompt
+
+    def getModel( self ):
+
+        key = self._config.openai_api_key
+        model = self._config.openai_model
+
+        # LLM wrapper : api key, model, temperature, tokens
+        llm = ChatOpenAI( api_key=key, model=model )
+
+        return llm

@@ -1,71 +1,51 @@
+# services/chain/chain_controller.py
+
 import logging
-from langchain_core.messages import HumanMessage, AIMessage, BaseMessage
+from langchain_core.messages import BaseMessage
 from services.chain.chain_service import ChainService
 from services.chain.request import ChainRequest
 from services.chain.response import ChainResponse
+from conf.settings.openai_config import OpenAIConfig
 
 logger = logging.getLogger(__name__)
 
 
 class ChainController:
     """
-    Receives a ChainRequest (Pydantic), converts internal ChatMessage
-    dataclasses into LangChain message types, calls ChainService,
+    Receives a ChainRequest (Pydantic), calls ChainService,
     and returns a ChainResponse (Pydantic).
 
-    This is the boundary between the app's internal world (dataclasses)
-    and LangChain's world (BaseMessage subclasses).
+    History is expected to already be in LangChain BaseMessage format —
+    conversion from internal ChatMessage types is the caller's responsibility
+    and happens in the transformer layer before the request is built.
 
-    LangChain concepts introduced here:
-    ────────────────────────────────────────────────────────
-    HumanMessage  — LangChain type for a user turn in history
-    AIMessage     — LangChain type for an assistant turn in history
-    ────────────────────────────────────────────────────────
+    Owns the config dependency — reads api_key and model from OpenAIConfig
+    and passes them as plain values to ChainService, keeping ChainService
+    portable and free of any app or config coupling.
     """
 
-    def __init__(self, chain_service: ChainService) -> None:
-        self._service = chain_service
+    def __init__(self, config: OpenAIConfig) -> None:
+        self._service = ChainService(
+            api_key=config.openai_api_key,
+            model=config.openai_model,
+        )
 
     def run(self, request: ChainRequest) -> ChainResponse:
         """
-        Convert history → call service → return response.
+        Call service with already-converted history and return response.
 
         Steps:
-        1. Convert list[ChatMessage] to list[BaseMessage] (LangChain types)
-        2. Call ChainService.run()
-        3. Wrap result in ChainResponse
+        1. Call ChainService.run() with history as list[BaseMessage]
+        2. Wrap result in ChainResponse
         """
         try:
-            lc_history = self._convert_history(request.history)
-
             answer = self._service.run(
                 system_prompt=request.system_prompt,
-                history=lc_history,
+                history=request.history,
                 user_input=request.user_input,
             )
-
             return ChainResponse(answer=answer)
 
         except Exception as exc:
             logger.exception("ChainController.run failed")
             return ChainResponse(error=str(exc))
-
-    def _convert_history(self, history) -> list[BaseMessage]:
-        """
-        Convert internal ChatMessage dataclasses to LangChain BaseMessage types.
-
-        ChatMessage(role="user", ...)      → HumanMessage(content=...)
-        ChatMessage(role="assistant", ...) → AIMessage(content=...)
-
-        LangChain requires its own message types so it can serialise them
-        correctly into the prompt template via MessagesPlaceholder.
-        """
-        messages: list[BaseMessage] = []
-        for msg in history:
-            if msg.role == "user":
-                messages.append(HumanMessage(content=msg.content))
-            elif msg.role == "assistant":
-                messages.append(AIMessage(content=msg.content))
-            else:
-                logger.warning("Unknown role '%s' — skipping", msg.role)
-        return messages

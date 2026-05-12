@@ -31,31 +31,38 @@ coding-agent/
 │   ├── __init__.py
 │   ├── main_controller.py               # MainController — builds UI, services, state.
 │   │                                      Instantiates event handlers. Wires signals via
-│   │                                      _bind_signals(). Owns AppState.
+│   │                                      _bind_signals(). Owns StateController.
 │   │
-│   ├── event_handlers/
+│   ├── state/
 │   │   ├── __init__.py
-│   │   └── chat/
+│   │   ├── app_state.py                 # AppState dataclass — holds state.messages (list of
+│   │   │                                  ChatMessage) and state.error (optional str).
+│   │   ├── state_controller.py          # StateController — owns all reads and writes to
+│   │   │                                  AppState. Exposes add_message(), get_messages(),
+│   │   │                                  pop_last_message(), clear_history(), has_messages(),
+│   │   │                                  set_error(), clear_error(), get_error().
+│   │   └── models/
 │   │       ├── __init__.py
-│   │       ├── send_message_handler.py  # Handles a single chat turn. Builds ChainRequest
-│   │       │                              from state. Runs LangChain chain via ChainController.
-│   │       │                              Saves user + assistant messages to AppState.
-│   │       │                              Updates UI. Uses QThread worker for async execution.
-│   │       └── clear_chat_handler.py    # Clears message history in AppState. Empties chat
-│   │                                      area. Disables input bar.
+│   │       └── chat_message.py          # ChatMessage dataclass — role + content pair stored
+│   │                                      in AppState.messages. Internal model, not Pydantic.
 │   │
-│   └── models/
+│   └── event_handlers/
 │       ├── __init__.py
-│       ├── services/
+│       ├── transformers/
 │       │   ├── __init__.py
-│       │   └── llm_transaction/
+│       │   └── chain/
 │       │       ├── __init__.py
-│       │       └── chat_message.py      # ChatMessage dataclass — role + content pair stored
-│       │                                  in AppState.messages. Internal model, not Pydantic.
-│       └── state/
+│       │       └── history_transformer.py  # convert_history(messages: list[ChatMessage])
+│       │                                      → list[BaseMessage]. Called by
+│       │                                      SendMessageHandler before building ChainRequest.
+│       └── chat/
 │           ├── __init__.py
-│           └── app_state.py             # AppState dataclass — holds state.messages (list of
-│                                          ChatMessage) and state.error (optional str).
+│           ├── send_message_handler.py  # Handles a single chat turn. Reads state via
+│           │                              StateController. Calls history_transformer.
+│           │                              Builds ChainRequest. Runs ChainWorker (QThread).
+│           │                              Saves messages to state. Updates UI.
+│           └── clear_chat_handler.py    # Clears history and error via StateController.
+│                                          Empties chat area. Disables input bar.
 │
 ├── ui/
 │   ├── __init__.py
@@ -105,14 +112,14 @@ coding-agent/
 │   │
 │   └── chain/
 │       ├── __init__.py
-│       ├── chain_controller.py          # ChainController — receives ChainRequest. Formats
-│       │                                  chat history into LangChain message types. Calls
-│       │                                  ChainService. Returns ChainResponse.
+│       ├── chain_controller.py          # ChainController — receives ChainRequest. Calls
+│       │                                  ChainService. Returns ChainResponse. No conversion
+│       │                                  logic — history arrives as list[BaseMessage].
 │       ├── chain_service.py             # ChainService — owns and runs the LCEL chain:
 │       │                                  prompt | llm | output_parser. Accepts formatted
 │       │                                  messages, returns raw string answer. Simple types only.
 │       ├── request.py                   # ChainRequest Pydantic model — system_prompt (str),
-│       │                                  history (list of ChatMessage), user_input (str).
+│       │                                  history (list[BaseMessage]), user_input (str).
 │       │                                  Pydantic because it is a service boundary input.
 │       ├── response.py                  # ChainResponse Pydantic model — answer (optional str),
 │       │                                  error (optional str). Convenience: has_answer(),
@@ -153,24 +160,38 @@ coding-agent/
 
 ---
 
+
+Here are the updated file responsibility tables:
+
+---
+
 ## File Responsibilities — Entry Point + App Layer
 
 | File | Contains |
 |---|---|
 | `main.py` | Entry point. Calls `configure_logging()`. Creates `QApplication`, `MainWindow`. Instantiates `MainController`. |
 | `utils/logger.py` | `configure_logging()` — configures Python logging to stdout with timestamp and level prefix. Called once at startup. |
-| `app/main_controller.py` | Slim orchestrator. Builds UI via `UIComposer`, services via `ServiceComposer`, and owns `AppState`. Instantiates all event handlers. Wires signals to handler methods via `_bind_signals()`. |
-| `app/event_handlers/chat/send_message_handler.py` | Handles a single chat turn. Reads user input. Builds `ChainRequest` from `AppState`. Starts `ChainWorker` (QThread). On result: saves `ChatMessage` pairs to `AppState`, appends bubbles to chat area, re-enables input. On error: shows status bar. |
-| `app/event_handlers/chat/clear_chat_handler.py` | Clears `AppState.messages`. Empties chat area. Hides status bar. Disables input bar. |
+| `app/main_controller.py` | Slim orchestrator. Builds UI via `UIComposer`, services via `ServiceComposer`. Owns `AppState` and `StateController`. Instantiates all event handlers. Wires signals to handler methods via `_bind_signals()`. |
+| `app/event_handlers/chat/send_message_handler.py` | Handles a single chat turn. Reads user input. Reads history via `StateController`. Calls `history_transformer` to convert history. Builds `ChainRequest`. Starts `ChainWorker` (QThread). On result: saves messages via `StateController`, appends bubbles to chat area, re-enables input. On error: shows status bar, rolls back user message. |
+| `app/event_handlers/chat/clear_chat_handler.py` | Clears history and error via `StateController`. Empties chat area. Hides status bar. Disables input bar. |
 
 ---
 
-## File Responsibilities — App Models
+## File Responsibilities — App State
 
 | File | Contains |
 |---|---|
-| `app/models/services/llm_transaction/chat_message.py` | `ChatMessage` dataclass — `role: str` and `content: str`. Internal model. Not Pydantic. |
-| `app/models/state/app_state.py` | `AppState` dataclass — `messages: list[ChatMessage]`, `error: str | None`. |
+| `app/state/models/chat_message.py` | `ChatMessage` dataclass — `role: str` and `content: str`. Internal model. Not Pydantic. |
+| `app/state/app_state.py` | `AppState` dataclass — `messages: list[ChatMessage]`, `error: str | None`. |
+| `app/state/state_controller.py` | `StateController` — owns all reads and writes to `AppState`. Exposes `add_message()`, `get_messages()`, `pop_last_message()`, `clear_history()`, `has_messages()`, `set_error()`, `clear_error()`, `get_error()`. |
+
+---
+
+## File Responsibilities — Event Handler Transformers
+
+| File | Contains |
+|---|---|
+| `app/event_handlers/transformers/chain/history_transformer.py` | `convert_history(messages: list[ChatMessage]) → list[BaseMessage]`. Pure function. Converts internal `ChatMessage` dataclasses to LangChain `HumanMessage` / `AIMessage` types. Called by `SendMessageHandler` before building `ChainRequest`. |
 
 ---
 
@@ -200,9 +221,9 @@ coding-agent/
 
 | File | Contains |
 |---|---|
-| `services/chain/chain_controller.py` | `ChainController` — receives `ChainRequest`. Converts `ChatMessage` history to LangChain message types (`HumanMessage`, `AIMessage`). Calls `ChainService.run()`. Returns `ChainResponse`. |
+| `services/chain/chain_controller.py` | `ChainController` — receives `ChainRequest`. Calls `ChainService.run()`. Returns `ChainResponse`. No conversion logic — history arrives already formatted as `list[BaseMessage]`. |
 | `services/chain/chain_service.py` | `ChainService` — owns the LCEL chain: `prompt | llm | output_parser`. `ChatPromptTemplate` holds system prompt + message placeholder. `ChatOpenAI` is configured from `OpenAIConfig`. `StrOutputParser` returns plain string. Accepts formatted message list. Returns raw string. |
-| `services/chain/request.py` | `ChainRequest` Pydantic model — `system_prompt: str`, `history: list[ChatMessage]`, `user_input: str`. Pydantic because it crosses the service boundary. |
+| `services/chain/request.py` | `ChainRequest` Pydantic model — `system_prompt: str`, `history: list[BaseMessage]`, `user_input: str`. Pydantic because it crosses the service boundary. |
 | `services/chain/response.py` | `ChainResponse` Pydantic model — `answer: str | None`, `error: str | None`. Methods: `has_answer()`, `has_error()`. |
 | `services/chain/worker.py` | `ChainWorker(QThread)` — calls `ChainController.run(request)` in background thread. Emits `result_ready = pyqtSignal(str)` and `error_occurred = pyqtSignal(str)`. |
 
@@ -239,7 +260,7 @@ coding-agent/
 | `MessagesPlaceholder` | `chain_service.py` | How to inject chat history into the prompt |
 | LCEL `|` operator | `chain_service.py` | How to chain prompt → llm → parser |
 | `StrOutputParser` | `chain_service.py` | How to extract plain text from LLM response |
-| `HumanMessage` / `AIMessage` | `chain_controller.py` | How LangChain represents conversation history |
+| `HumanMessage` / `AIMessage` | `history_transformer.py` | How LangChain represents conversation history |
 
 ---
 
@@ -250,11 +271,11 @@ At Level 2, the following are added without changing anything above:
 - `services/retriever/` — document loader, text splitter, vector store, retriever
 - `services/chain/chain_service.py` — swaps plain chain for `create_retrieval_chain()`
 - `ui/toolbar/` — gains a folder picker widget to load a codebase
-- `app/models/state/app_state.py` — gains `project_path: str | None`
+- `app/state/app_state.py` — gains `project_path: str | None`
 
 ---
 
-## Models Convention (same as PDF chat app)
+## Models Convention
 
 > Use **Pydantic** only at service boundaries (data crossing in/out of a service layer).
-> Use **dataclass** for all internal app models (AppState, ChatMessage).
+> Use **dataclass** for all internal app models (`AppState`, `ChatMessage`).

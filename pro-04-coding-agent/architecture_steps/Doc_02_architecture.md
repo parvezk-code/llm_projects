@@ -54,6 +54,14 @@ interaction --->  event --->  update UI   --->  service call  ---> update UI
 
 <br>
 
+'''
+
+ServiceComposer    →  passes config
+ChainController    →  reads config, builds dependencies, owns ChainService
+ChainService       →  receives built objects only, knows nothing about config
+
+'''
+
 > `One MainController`
 
 | Class Type | Count | Responsibility |

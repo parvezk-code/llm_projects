@@ -1,6 +1,8 @@
+# app/event_handlers/chat/send_message_handler.py
+
 import logging
-from app.models.state.app_state import AppState
-from app.models.services.llm_transaction.chat_message import ChatMessage
+from app.state.state_controller import StateController
+from app.event_handlers.transformers.chain.history_transformer import convert_history
 from services.chain.request import ChainRequest
 from services.chain.worker import ChainWorker
 from services.service_bundle import ServiceBundle
@@ -15,17 +17,17 @@ class SendMessageHandler:
 
     Steps:
     1. Read user input from input bar
-    2. Add user message bubble + save to AppState
+    2. Show user bubble + save to state via StateController
     3. Disable input while waiting
-    4. Build ChainRequest from AppState
+    4. Transform history and build ChainRequest
     5. Start ChainWorker (background QThread)
-    6. On result  → add assistant bubble, save to AppState, re-enable input
-    7. On error   → show error in status bar, re-enable input
+    6. On result  → add assistant bubble, save to state, re-enable input
+    7. On error   → show error in status bar, roll back user message, re-enable input
     """
 
     def __init__(
         self,
-        state: AppState,
+        state: StateController,
         ui: UIBundle,
         services: ServiceBundle,
         system_prompt: str,
@@ -49,20 +51,21 @@ class SendMessageHandler:
         self._ui.status_bar.hide()
 
         # ── 2. Save user message to state ────────────────────────────────────
-        self._state.messages.append(ChatMessage(role="user", content=user_text))
+        self._state.add_message("user", user_text)
 
         # ── 3. Disable input while waiting ───────────────────────────────────
         self._ui.input_bar.set_enabled(False)
         self._ui.toolbar.set_clear_enabled(False)
 
-        # ── 4. Build ChainRequest ─────────────────────────────────────────────
-        # Pass history EXCLUDING the just-added user message —
+        # ── 4. Transform history and build ChainRequest ───────────────────────
+        # History excludes the just-added user message —
         # the user_input is sent separately as the current turn.
-        history = self._state.messages[:-1]
+        history_messages = self._state.get_messages()[:-1]
+        lc_history = convert_history(history_messages)
 
         request = ChainRequest(
             system_prompt=self._system_prompt,
-            history=history,
+            history=lc_history,
             user_input=user_text,
         )
 
@@ -75,11 +78,9 @@ class SendMessageHandler:
     def _on_result(self, answer: str) -> None:
         logger.debug("SendMessageHandler: received answer len=%d", len(answer))
 
-        # ── 6. Show assistant bubble ─────────────────────────────────────────
+        # ── 6. Show assistant bubble and save to state ───────────────────────
         self._ui.chat_area.add_bubble("assistant", answer)
-
-        # Save assistant message to state
-        self._state.messages.append(ChatMessage(role="assistant", content=answer))
+        self._state.add_message("assistant", answer)
 
         # Re-enable UI
         self._ui.input_bar.set_enabled(True)
@@ -88,15 +89,13 @@ class SendMessageHandler:
     def _on_error(self, error: str) -> None:
         logger.error("SendMessageHandler: error=%s", error)
 
-        # ── 7. Show error ─────────────────────────────────────────────────────
-        self._state.error = error
+        # ── 7. Show error and roll back user message ──────────────────────────
+        self._state.set_error(error)
         self._ui.status_bar.show_error(error)
 
-        # Remove last user message from state (turn didn't complete)
-        if self._state.messages and self._state.messages[-1].role == "user":
-            self._state.messages.pop()
+        # Roll back user message — turn did not complete
+        self._state.pop_last_message()
 
         # Re-enable UI
         self._ui.input_bar.set_enabled(True)
-        has_messages = bool(self._state.messages)
-        self._ui.toolbar.set_clear_enabled(has_messages)
+        self._ui.toolbar.set_clear_enabled(self._state.has_messages())

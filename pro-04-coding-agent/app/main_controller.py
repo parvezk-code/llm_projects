@@ -1,6 +1,9 @@
+# app/main_controller.py
+
 import logging
 from PyQt6.QtWidgets import QMainWindow
-from app.models.state.app_state import AppState
+from app.state.app_state import AppState
+from app.state.state_controller import StateController
 from app.event_handlers.chat.send_message_handler import SendMessageHandler
 from app.event_handlers.chat.clear_chat_handler import ClearChatHandler
 from conf.settings.config_bundle import ConfigBundle
@@ -14,7 +17,7 @@ logger = logging.getLogger(__name__)
 
 class MainController:
     """
-    Slim orchestrator. Owns AppState.
+    Slim orchestrator. Owns AppState and StateController.
     Builds UI and services. Instantiates event handlers.
     Wires all signals to handlers via _bind_signals().
     """
@@ -24,7 +27,7 @@ class MainController:
         self._config = config
 
         # ── State ─────────────────────────────────────────────────────────────
-        self._state = AppState()
+        self._state = StateController(AppState())
 
         # ── UI ────────────────────────────────────────────────────────────────
         self._ui: UIBundle = UIComposer.compose(window)
