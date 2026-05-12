@@ -3,8 +3,6 @@ from PyQt6.QtCore import QThread, pyqtSignal
 from services.chain.chain_controller import ChainController
 from services.chain.request import ChainRequest
 
-logger = logging.getLogger(__name__)
-
 
 class ChainWorker(QThread):
     """
@@ -34,12 +32,9 @@ class ChainWorker(QThread):
 
     def run(self) -> None:
         """Called by QThread.start(). Runs in background thread."""
-        logger.debug("ChainWorker starting")
         response = self._controller.run(self._request)
 
         if response.has_answer():
-            logger.debug("ChainWorker — emitting result_ready")
             self.result_ready.emit(response.answer)
         else:
-            logger.warning("ChainWorker — emitting error_occurred: %s", response.error)
             self.error_occurred.emit(response.error or "Unknown error")
