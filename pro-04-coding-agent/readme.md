@@ -12,7 +12,7 @@
 ## 1. Clone or Download the Project
 
 ```bash
-cd chat_pdf
+cd root_coding_agent
 ```
 
 ---
@@ -95,71 +95,7 @@ pip install -r requirements.txt
 
 ---
 
-## 6. Using the App
-
-| Step | Action |
-|---|---|
-| 1 | Click **Upload PDF** to select a PDF file |
-| 2 | Wait for the filename to appear in the toolbar |
-| 3 | Type a question in the input box |
-| 4 | Press **Enter** or click **Send** |
-| 5 | Wait for the AI response to appear |
-| 6 | Click **Clear** to reset the conversation |
-| 7 | Click **Upload PDF** again to load a different PDF |
-
----
-
-## 7. Project Structure
-
-```
-chat_pdf/
-├── main.py
-├── .env
-├── requirements.txt
-├── app/
-│   ├── main_controller.py
-│   └── models/
-│       ├── services/
-│       │   ├── pdf_document.py
-│       │   ├── chat_message.py
-│       │   └── llm_transaction.py
-│       └── state/
-│           └── app_state.py
-├── ui/
-│   ├── ui_composer.py
-│   ├── ui_bundle.py
-│   ├── toolbar/
-│   │   ├── toolbar_component.py
-│   │   └── toolbar_controller.py
-│   ├── status_bar/
-│   │   ├── status_bar_component.py
-│   │   └── status_bar_controller.py
-│   ├── chat_area/
-│   │   ├── chat_area_component.py
-│   │   ├── chat_area_controller.py
-│   │   └── widgets/
-│   │       ├── message_bubble_widget.py
-│   │       ├── loading_bubble_widget.py
-│   │       └── placeholder_widget.py
-│   └── input_bar/
-│       ├── input_bar_component.py
-│       └── input_bar_controller.py
-├── services/
-│   ├── service_bundle.py
-│   ├── service_composer.py
-│   ├── pdf/
-│   │   ├── pdf_controller.py
-│   │   └── pdf_service.py
-│   └── llm/
-│       ├── llm_controller.py
-│       └── llm_service.py
-└── config/
-    └── settings.py
-```
-
----
-
-## 8. Troubleshooting
+## 7. Troubleshooting
 
 | Problem | Solution |
 |---|---|

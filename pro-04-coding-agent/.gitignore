@@ -5,7 +5,7 @@ __pycache__/
 *.pyc
 .DS_Store
 zz_temp/
-.env.openAI
+.env.openai
 .codex
 .codex_memory/
 services/mcp_01/

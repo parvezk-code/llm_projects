@@ -1,0 +1,172 @@
+/* ── Global ─────────────────────────────────────────────────────────────── */
+QMainWindow, QWidget#centralWidget {
+    background-color: #eef6fb;
+    color: #1f2937;
+    font-family: "Consolas", "Menlo", "Courier New", monospace;
+    font-size: 13px;
+}
+
+/* ── Toolbar ─────────────────────────────────────────────────────────────── */
+QWidget#toolbar {
+    background-color: #dcecf7;
+    border-bottom: 1px solid #9cc7df;
+    min-height: 48px;
+}
+
+QLabel#toolbarTitle {
+    color: #2b6f97;
+    font-size: 16px;
+    font-weight: bold;
+    letter-spacing: 1px;
+}
+
+QPushButton#clearButton {
+    background-color: transparent;
+    color: #5a6b7b;
+    border: 1px solid #a7bfd1;
+    border-radius: 4px;
+    padding: 4px 14px;
+    font-size: 12px;
+}
+
+QPushButton#clearButton:hover {
+    border-color: #2b6f97;
+    color: #2b6f97;
+}
+
+QPushButton#clearButton:disabled {
+    color: #8aa2b3;
+    border-color: #c9d9e3;
+}
+
+/* ── Chat area ───────────────────────────────────────────────────────────── */
+QWidget#chatArea {
+    background-color: #eef6fb;
+}
+
+QScrollArea#chatScroll {
+    background-color: #eef6fb;
+    border: none;
+}
+
+QWidget#chatContainer {
+    background-color: #eef6fb;
+}
+
+/* ── Message bubbles ─────────────────────────────────────────────────────── */
+QLabel#userBubble {
+    background-color: #6da9c7;
+    color: #ffffff;
+    border-radius: 12px;
+    padding: 10px 14px;
+    max-width: 520px;
+    line-height: 1.5;
+}
+
+QLabel#assistantBubble {
+    background-color: #dcecf7;
+    color: #1f2937;
+    border-radius: 12px;
+    border: 1px solid #b6d0e0;
+    padding: 10px 14px;
+    max-width: 580px;
+    line-height: 1.5;
+}
+
+/* ── Placeholder ─────────────────────────────────────────────────────────── */
+QWidget#placeholder {
+    background-color: #eef6fb;
+}
+
+QLabel#placeholderIcon {
+    font-size: 40px;
+    color: #9bb6c8;
+}
+
+QLabel#placeholderHint {
+    color: #6b7f8d;
+    font-size: 13px;
+}
+
+/* ── Input bar ───────────────────────────────────────────────────────────── */
+QWidget#inputBar {
+    background-color: #dcecf7;
+    border-top: 1px solid #9cc7df;
+}
+
+QTextEdit#textInput {
+    background-color: #f8fcff;
+    color: #1f2937;
+    border: 1px solid #a9c6d8;
+    border-radius: 8px;
+    padding: 8px;
+    font-family: "Consolas", "Menlo", "Courier New", monospace;
+    font-size: 13px;
+    selection-background-color: #6da9c7;
+}
+
+QTextEdit#textInput:focus {
+    border-color: #2b6f97;
+}
+
+QPushButton#sendButton {
+    background-color: #6da9c7;
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    padding: 8px 20px;
+    font-size: 13px;
+    font-weight: bold;
+    min-width: 70px;
+    min-height: 40px;
+}
+
+QPushButton#sendButton:hover {
+    background-color: #5b97b6;
+}
+
+QPushButton#sendButton:disabled {
+    background-color: #bfd4e2;
+    color: #6b7f8d;
+}
+
+/* ── Status bar ──────────────────────────────────────────────────────────── */
+QWidget#statusBar {
+    background-color: #e6eef5;
+    border-top: 1px solid #b5cad8;
+}
+
+QLabel#statusMessage {
+    color: #5d7485;
+    font-size: 12px;
+}
+
+QPushButton#statusDismiss {
+    background-color: transparent;
+    color: #5d7485;
+    border: none;
+    font-size: 14px;
+    font-weight: bold;
+}
+
+QPushButton#statusDismiss:hover {
+    color: #2b6f97;
+}
+
+/* ── Scrollbar ───────────────────────────────────────────────────────────── */
+QScrollBar:vertical {
+    background: #eef6fb;
+    width: 6px;
+    border-radius: 3px;
+}
+
+QScrollBar::handle:vertical {
+    background: #8eb6cc;
+    border-radius: 3px;
+    min-height: 20px;
+}
+
+QScrollBar::add-line:vertical,
+QScrollBar::sub-line:vertical {
+    height: 0px;
+}

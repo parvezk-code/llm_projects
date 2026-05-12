@@ -7,7 +7,8 @@ from app.main_controller import MainController
 
 
 def load_stylesheet(app: QApplication) -> None:
-    qss_path = Path(__file__).parent / "styles" / "main.qss"
+    qss_path = Path(__file__).parent / "styles" / "ocean_blue_theme.qss"
+    # qss_path = Path(__file__).parent / "styles" / "main.qss"
     if qss_path.exists():
         app.setStyleSheet(qss_path.read_text())
 
@@ -24,7 +25,7 @@ def main() -> None:
 
     window = QMainWindow()
     window.setWindowTitle(config.app.app_name)
-    window.resize(900, 700)
+    window.resize(800, 500)
     window.setMinimumSize(600, 480)
 
     # MainController builds UI, services, wires everything

@@ -38,8 +38,8 @@ class ChainService:
         self._llm = ChatOpenAI(
             api_key=config.openai_api_key,
             model=config.openai_model,
-            temperature=config.temperature,
-            max_tokens=config.max_tokens,
+            # temperature=config.temperature,
+            # max_tokens=config.max_tokens,
         )
 
         # ── 2. Output Parser ─────────────────────────────────────────────────
