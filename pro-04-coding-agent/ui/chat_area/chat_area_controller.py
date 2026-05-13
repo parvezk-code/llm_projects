@@ -1,3 +1,5 @@
+# ui/chat_area/chat_area_controller.py
+
 from PyQt6.QtCore import QTimer
 from ui.chat_area.chat_area_component import ChatAreaComponent
 from ui.chat_area.widgets.message_bubble_widget import MessageBubbleWidget
@@ -17,6 +19,16 @@ class ChatAreaController:
         self._component.container_layout.addWidget(bubble)
         self._show_chat()
         QTimer.singleShot(50, self._scroll_to_bottom)
+
+    def clear_last_bubble(self) -> None:
+        """Remove the last bubble added."""
+        layout = self._component.container_layout
+        if layout.count():
+            item = layout.takeAt(layout.count() - 1)
+            if item.widget():
+                item.widget().deleteLater()
+        if not layout.count():
+            self._show_placeholder()
 
     def clear(self) -> None:
         """Remove all bubbles and show placeholder."""

@@ -14,13 +14,15 @@ class ChainController:
         self._service = service
 
     def run(self, request: ChainRequest) -> ChainResponse:
+        answer = None
         try:
-            answer = self._service.run(
-                history=request.history,
-                user_input=request.user_input,
-                retriever=request.retriever,
-            )
+            if request.retriever is not None:
+                answer =  self._service.run_retrieval_chain(request.history, request.user_input, request.retriever)
+            else:
+                answer =  self._service.run_plain_chain(request.history, request.user_input)
+
             return ChainResponse(answer=answer)
+
         except Exception as e:
             logger.error(f"ChainController error: {e}")
             return ChainResponse(error=str(e))
