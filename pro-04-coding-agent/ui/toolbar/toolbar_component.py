@@ -55,3 +55,6 @@ class ToolbarComponent(QWidget):
     def set_enabled(self, enabled: bool) -> None:
         self._clear_button.setEnabled(enabled)
         self._load_project_button.setEnabled(enabled)
+    
+    def set_clear_enabled(self, enabled: bool) -> None:
+        self._clear_button.setEnabled(enabled)

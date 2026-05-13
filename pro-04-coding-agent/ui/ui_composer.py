@@ -5,6 +5,8 @@ from PyQt6.QtWidgets import QMainWindow, QWidget, QVBoxLayout
 from ui.ui_bundle import UIBundle
 from ui.toolbar.toolbar_component import ToolbarComponent
 from ui.toolbar.toolbar_controller import ToolbarController
+from ui.folder_picker.folder_picker_component import FolderPickerComponent
+from ui.folder_picker.folder_picker_controller import FolderPickerController
 from ui.status_bar.status_bar_component import StatusBarComponent
 from ui.status_bar.status_bar_controller import StatusBarController
 from ui.chat_area.chat_area_component import ChatAreaComponent
@@ -20,6 +22,10 @@ class UIComposer:
         # --- toolbar ---
         toolbar_component = ToolbarComponent()
         toolbar_controller = ToolbarController(component=toolbar_component)
+
+        # --- folder picker ---
+        folder_picker_component = FolderPickerComponent()
+        folder_picker_controller = FolderPickerController(component=folder_picker_component)
 
         # --- status bar ---
         status_bar_component = StatusBarComponent()
@@ -48,6 +54,7 @@ class UIComposer:
 
         return UIBundle(
             toolbar=toolbar_controller,
+            folder_picker=folder_picker_controller,
             status_bar=status_bar_controller,
             chat_area=chat_area_controller,
             input_bar=input_bar_controller,

@@ -25,9 +25,11 @@ class LoadProjectHandler:
         self._retriever_controller = retriever_controller
         self._send_handler = send_handler
         self._worker: RetrieverPipelineWorker | None = None
+        self._project_path: str = ""
 
     def handle(self, project_path: str) -> None:
         logger.info(f"Loading project: {project_path}")
+        self._project_path = project_path
         self._ui.status_bar.hide()
         self._ui.toolbar.set_enabled(False)
         self._ui.input_bar.set_enabled(False)
@@ -41,8 +43,9 @@ class LoadProjectHandler:
         self._worker.start()
 
     def _on_retriever_ready(self, retriever: object) -> None:
-        self._state.set_project_path(self._worker._request.project_path)
+        self._state.set_project_path(self._project_path)
         self._send_handler.set_retriever(retriever)
+        self._ui.toolbar.set_project_name(self._project_path.split("/")[-1])
         self._ui.toolbar.set_enabled(True)
         self._ui.input_bar.set_enabled(True)
         logger.info("Retriever ready. RAG mode active.")

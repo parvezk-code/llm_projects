@@ -53,4 +53,5 @@ class MainController:
     def _bind_signals(self) -> None:
         self._ui_bundle.input_bar.bind_send_clicked(self._send_handler.handle)
         self._ui_bundle.toolbar.bind_clear_clicked(self._clear_handler.handle)
-        self._ui_bundle.toolbar.bind_project_loaded(self._load_project_handler.handle)
+        self._ui_bundle.toolbar.bind_load_project_clicked(self._ui_bundle.folder_picker.open)
+        self._ui_bundle.folder_picker.bind_folder_selected(self._load_project_handler.handle)
