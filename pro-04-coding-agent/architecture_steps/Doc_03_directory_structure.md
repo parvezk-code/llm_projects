@@ -27,7 +27,6 @@ coding-agent/
 ├── app/
 ├── ui/
 ├── services/
-├── core_services/
 ├── conf/
 ├── storage/
 ├── styles/    --->  main.qss
@@ -37,7 +36,7 @@ coding-agent/
 
 ```
 
-coding-agent/app/
+app/
 ├── __init__.py
 ├── main_controller.py
 │
@@ -56,15 +55,24 @@ coding-agent/app/
     │   └── chain/
     │       ├── __init__.py
     │       └── history_transformer.py
-    └── chat/
+    ├── business_logic/
+    │   ├── __init__.py
+    │   └── project/
+    │       ├── __init__.py
+    │       └── retriever_pipeline_worker.py
+    ├── chat/
+    │   ├── __init__.py
+    │   ├── send_message_handler.py
+    │   └── clear_chat_handler.py
+    └── project/
         ├── __init__.py
-        ├── send_message_handler.py
-        └── clear_chat_handler.py
+        └── load_project_handler.py
 
 ```
 
 ```
-coding-agent/services/
+
+services/
 ├── __init__.py
 ├── service_composer.py
 ├── service_bundle.py
@@ -77,22 +85,14 @@ coding-agent/services/
 │   ├── response.py
 │   └── worker.py
 │
-└── retriever/
-    ├── __init__.py
-    └── pipeline/
-        ├── __init__.py
-        ├── controller.py
-        ├── service.py
-        ├── request.py
-        ├── response.py
-        └── worker.py
-
-```
-
-```
-
-coding-agent/core_services/
-├── __init__.py
+├── retriever/
+│   ├── __init__.py
+│   └── pipeline/
+│       ├── __init__.py
+│       ├── controller.py
+│       ├── service.py
+│       ├── request.py
+│       └── response.py
 │
 ├── document_extractors/
 │   ├── __init__.py
@@ -133,6 +133,7 @@ coding-agent/core_services/
         └── response.py
 
 ```
+
 
 ```
 coding-agent/ui/

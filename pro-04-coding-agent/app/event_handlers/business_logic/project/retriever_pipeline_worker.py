@@ -1,8 +1,7 @@
-# services/retriever/pipeline/worker.py
+# app/event_handlers/business_logic/project/retriever_pipeline_worker.py
 
 import logging
 from PyQt6.QtCore import QThread, pyqtSignal
-from langchain_core.vectorstores import VectorStoreRetriever
 
 from services.retriever.pipeline.controller import RetrieverPipelineController
 from services.retriever.pipeline.request import RetrieverPipelineRequest

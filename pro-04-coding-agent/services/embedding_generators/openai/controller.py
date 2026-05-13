@@ -1,9 +1,9 @@
-# core_services/embedding_generators/openai/controller.py
+# services/embedding_generators/openai/controller.py
 
 import logging
-from core_services.embedding_generators.openai.service import OpenAIEmbeddingService
-from core_services.embedding_generators.openai.request import OpenAIEmbeddingRequest
-from core_services.embedding_generators.openai.response import OpenAIEmbeddingResponse
+from services.embedding_generators.openai.service import OpenAIEmbeddingService
+from services.embedding_generators.openai.request import OpenAIEmbeddingRequest
+from services.embedding_generators.openai.response import OpenAIEmbeddingResponse
 
 logger = logging.getLogger(__name__)
 

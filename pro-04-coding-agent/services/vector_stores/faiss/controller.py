@@ -1,9 +1,9 @@
-# core_services/vector_stores/faiss/controller.py
+# services/vector_stores/faiss/controller.py
 
 import logging
-from core_services.vector_stores.faiss.service import FAISSVectorStoreService
-from core_services.vector_stores.faiss.request import FAISSVectorStoreRequest
-from core_services.vector_stores.faiss.response import FAISSVectorStoreResponse
+from services.vector_stores.faiss.service import FAISSVectorStoreService
+from services.vector_stores.faiss.request import FAISSVectorStoreRequest
+from services.vector_stores.faiss.response import FAISSVectorStoreResponse
 
 logger = logging.getLogger(__name__)
 

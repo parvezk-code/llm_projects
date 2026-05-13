@@ -40,7 +40,7 @@ interaction --->  event --->  update UI   --->  service call  ---> update UI
 
 <br>
 
-> `Seven Types Of Class for Services and Core-Services`
+> `Seven Types Of Class for Services`
 
 | Class Type | Count | Responsibility |
 |---|---|---|
@@ -55,8 +55,6 @@ interaction --->  event --->  update UI   --->  service call  ---> update UI
 <br>
 
 ```
-Those services that do not depend on each other are inside core-services directory.
-Those services depend on one or more core-services are in services directory.
 
 ServiceComposer       →  passes config
 Service Controller    →  reads config, builds dependencies, owns Service
@@ -210,6 +208,7 @@ MainController
 
 - A plain class that handles exactly one external service**
 - Has a dedicated Domain Controller for it.
+- reusable infrastructure
 
 ---
 

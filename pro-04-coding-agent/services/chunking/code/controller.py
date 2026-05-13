@@ -1,9 +1,9 @@
-# core_services/chunking/code/controller.py
+# services/chunking/code/controller.py
 
 import logging
-from core_services.chunking.code.service import CodeChunkingService
-from core_services.chunking.code.request import CodeChunkingRequest
-from core_services.chunking.code.response import CodeChunkingResponse
+from services.chunking.code.service import CodeChunkingService
+from services.chunking.code.request import CodeChunkingRequest
+from services.chunking.code.response import CodeChunkingResponse
 
 logger = logging.getLogger(__name__)
 

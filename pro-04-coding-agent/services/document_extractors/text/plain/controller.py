@@ -1,9 +1,9 @@
-# core_services/document_extractors/text/plain/controller.py
+# services/document_extractors/text/plain/controller.py
 
 import logging
-from core_services.document_extractors.text.plain.service import PlainTextExtractorService
-from core_services.document_extractors.text.plain.request import PlainTextExtractorRequest
-from core_services.document_extractors.text.plain.response import PlainTextExtractorResponse
+from services.document_extractors.text.plain.service import PlainTextExtractorService
+from services.document_extractors.text.plain.request import PlainTextExtractorRequest
+from services.document_extractors.text.plain.response import PlainTextExtractorResponse
 
 logger = logging.getLogger(__name__)
 

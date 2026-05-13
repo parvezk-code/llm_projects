@@ -3,12 +3,12 @@
 import logging
 from langchain_core.vectorstores import VectorStoreRetriever
 
-from core_services.document_extractors.text.plain.controller import PlainTextExtractorController
-from core_services.document_extractors.text.plain.request import PlainTextExtractorRequest
-from core_services.chunking.code.controller import CodeChunkingController
-from core_services.chunking.code.request import CodeChunkingRequest
-from core_services.vector_stores.faiss.controller import FAISSVectorStoreController
-from core_services.vector_stores.faiss.request import FAISSVectorStoreRequest
+from services.document_extractors.text.plain.controller import PlainTextExtractorController
+from services.document_extractors.text.plain.request import PlainTextExtractorRequest
+from services.chunking.code.controller import CodeChunkingController
+from services.chunking.code.request import CodeChunkingRequest
+from services.vector_stores.faiss.controller import FAISSVectorStoreController
+from services.vector_stores.faiss.request import FAISSVectorStoreRequest
 
 logger = logging.getLogger(__name__)
 

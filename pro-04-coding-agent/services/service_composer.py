@@ -2,14 +2,14 @@
 
 from conf.settings.config_bundle import ConfigBundle
 
-from core_services.document_extractors.text.plain.service import PlainTextExtractorService
-from core_services.document_extractors.text.plain.controller import PlainTextExtractorController
-from core_services.chunking.code.service import CodeChunkingService
-from core_services.chunking.code.controller import CodeChunkingController
-from core_services.embedding_generators.openai.service import OpenAIEmbeddingService
-from core_services.vector_stores.faiss.service import FAISSVectorStoreService
-from core_services.vector_stores.faiss.controller import FAISSVectorStoreController
-
+from services.document_extractors.text.plain.service import PlainTextExtractorService
+from services.document_extractors.text.plain.controller import PlainTextExtractorController
+from services.chunking.code.service import CodeChunkingService
+from services.chunking.code.controller import CodeChunkingController
+from services.embedding_generators.openai.service import OpenAIEmbeddingService
+from services.embedding_generators.openai.controller import OpenAIEmbeddingController
+from services.vector_stores.faiss.service import FAISSVectorStoreService
+from services.vector_stores.faiss.controller import FAISSVectorStoreController
 from services.chain.chain_service import ChainService
 from services.chain.chain_controller import ChainController
 from services.retriever.pipeline.service import RetrieverPipelineService
@@ -54,6 +54,7 @@ class ServiceComposer:
             model=self._config.retriever.embedding_model,
             api_key=self._config.openai.openai_api_key,
         )
+        embedding_controller = OpenAIEmbeddingController(service=embedding_service)
 
         # --- vector store ---
         vector_store_service = FAISSVectorStoreService(
@@ -67,11 +68,15 @@ class ServiceComposer:
             chunking_controller=chunking_controller,
             vector_store_controller=vector_store_controller,
         )
-        retriever_pipeline_controller = RetrieverPipelineController(
+        retriever_controller = RetrieverPipelineController(
             service=retriever_pipeline_service
         )
 
         return ServiceBundle(
             chain_controller=chain_controller,
-            retriever_controller=retriever_pipeline_controller,
+            retriever_controller=retriever_controller,
+            extractor_controller=extractor_controller,
+            chunking_controller=chunking_controller,
+            embedding_controller=embedding_controller,
+            vector_store_controller=vector_store_controller,
         )
