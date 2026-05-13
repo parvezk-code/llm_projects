@@ -40,7 +40,7 @@ interaction --->  event --->  update UI   --->  service call  ---> update UI
 
 <br>
 
-> `Seven Types Of Class for Services`
+> `Seven Types Of Class for Services and Core-Services`
 
 | Class Type | Count | Responsibility |
 |---|---|---|
@@ -54,13 +54,15 @@ interaction --->  event --->  update UI   --->  service call  ---> update UI
 
 <br>
 
-'''
+```
+Those services that do not depend on each other are inside core-services directory.
+Those services depend on one or more core-services are in services directory.
 
-ServiceComposer    →  passes config
-ChainController    →  reads config, builds dependencies, owns ChainService
-ChainService       →  receives built objects only, knows nothing about config
+ServiceComposer       →  passes config
+Service Controller    →  reads config, builds dependencies, owns Service
+Service               →  receives built objects only, knows nothing about config
 
-'''
+```
 
 > `One MainController`
 
@@ -74,7 +76,7 @@ ChainService       →  receives built objects only, knows nothing about config
 
 | Class | Type | Fields |
 |---|---|---|
-| `AppControllers`    | `@dataclass(frozen=True)` | one field for each component controller |
+| `UIControllers`    | `@dataclass(frozen=True)` | one field for each component controller |
 | `DomainControllers` | `@dataclass(frozen=True)` | one field for each domain controller |
 
 
@@ -88,7 +90,15 @@ ChainService       →  receives built objects only, knows nothing about config
 
 | Class | Type | Fields |
 |---|---|---|
-| `AppState` | `@dataclass` | store data that is available to entire app. Survive multiple event calls |
+| `AppState` | one for entire app | `@dataclass`, store data that is available to entire app. Survive multiple event calls |
+| `StateController` | one for entire app  | Wrapper around the state object |
+
+
+## Event handlers
+
+| Class | Type | Fields |
+|---|---|---|
+| `event-handlers` | one for each app | contains code to handle exactly one event |
 
 ---
 
@@ -193,7 +203,16 @@ MainController
 - Communicates only via MainController
 - Never communicate with other `DomainController`s directly
 - Never communicate with other `ComponentController`s directly
+
 ---
+
+## Services (Key responsibilities)
+
+- A plain class that handles exactly one external service**
+- Has a dedicated Domain Controller for it.
+
+---
+
 
 ## UIComposer (Key responsibilities)
 
@@ -214,6 +233,16 @@ MainController
 - Instantiates all `DomainControllers`
 - Returns refrences of all domain controllers as a frozen bundle
 - Main controller need it get refrences of all domain controllers 
+- Reads data from config object and pass them to controller.
+
+## Event handlers
+
+- Contains method to handle exactly one event.
+- Create request object and calls domain controllers
+- Receive response object from the domain controllers
+- Can call multiple domain controllers. 
+- (req1--> DC1 -->res1) --> (req2--> DC2 -->res2)--> (req2--> DC3--> res3) --> UIC
+- At the end calls UI contorllers to update UI
 
 ## MainController (Key responsibilities)
 
@@ -241,6 +270,7 @@ MainController
   - seprate config files for seprate work - llm, UI, data_base, etc
   - use Pydantic class to read directly from env file
   - keep all config in seprate objects and bundel all these objects into single main object.
+  - only service-composer has access to these config files. It pass confgs to service composers. No Component, service, handler, app state or any other code has direct access to config object
 
 > we have try catch to handle same error in both DomainController and MainController. DomainController catches Raw library exceptions and raises clean domain error. MainController catches Clean domain errors and decides what to do next. This is the standard pattern for layered architectures. Each layer only speaks the language of the layer above it.
 
