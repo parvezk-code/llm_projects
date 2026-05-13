@@ -51,6 +51,6 @@ class MainController:
         self._bind_signals()
 
     def _bind_signals(self) -> None:
-        self._ui_bundle.input_bar.send_clicked.connect(self._send_handler.handle)
-        self._ui_bundle.toolbar.clear_clicked.connect(self._clear_handler.handle)
-        self._ui_bundle.toolbar.project_loaded.connect(self._load_project_handler.handle)
+        self._ui_bundle.input_bar.bind_send_clicked(self._send_handler.handle)
+        self._ui_bundle.toolbar.bind_clear_clicked(self._clear_handler.handle)
+        self._ui_bundle.toolbar.bind_project_loaded(self._load_project_handler.handle)

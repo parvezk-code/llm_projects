@@ -1,17 +1,29 @@
+# ui/status_bar/status_bar_controller.py
+
 from ui.status_bar.status_bar_component import StatusBarComponent
 
 
 class StatusBarController:
-    """Show or hide the error banner."""
+    """
+    Manages status bar component.
+    Exposes bind methods for external signal wiring.
+    """
 
     def __init__(self, component: StatusBarComponent) -> None:
         self._component = component
-        self._component.dismiss_button.clicked.connect(self.hide)
+        self._component.dismiss_clicked.connect(self.hide)
+
+    # --- bind methods ---
+
+    def bind_dismiss_clicked(self, method) -> None:
+        self._component.dismiss_clicked.connect(method)
+
+    # --- operation methods ---
 
     def show_error(self, message: str) -> None:
-        self._component.message_label.setText(f"⚠  {message}")
+        self._component.set_message(f"⚠  {message}")
         self._component.show()
 
     def hide(self) -> None:
         self._component.hide()
-        self._component.message_label.setText("")
+        self._component.clear_message()

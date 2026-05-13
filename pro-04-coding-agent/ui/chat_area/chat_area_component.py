@@ -1,7 +1,8 @@
-from PyQt6.QtWidgets import (
-    QWidget, QVBoxLayout, QScrollArea, QSizePolicy
-)
+# ui/chat_area/chat_area_component.py
+
+from PyQt6.QtWidgets import QWidget, QVBoxLayout, QScrollArea
 from PyQt6.QtCore import Qt
+
 from ui.chat_area.widgets.placeholder_widget import PlaceholderWidget
 
 
@@ -9,38 +10,58 @@ class ChatAreaComponent(QWidget):
     """
     Scrollable chat area containing message bubbles.
     Shows PlaceholderWidget when empty.
+    No signals — purely a display component.
     """
 
     def __init__(self, parent=None) -> None:
         super().__init__(parent)
         self.setObjectName("chatArea")
+        self._create_widgets()
+        self._create_layout()
+        self._connect_child_signals()
 
-        root_layout = QVBoxLayout(self)
-        root_layout.setContentsMargins(0, 0, 0, 0)
-        root_layout.setSpacing(0)
+    def _create_widgets(self) -> None:
+        self._placeholder = PlaceholderWidget()
 
-        # ── Scroll area ──────────────────────────────────────────────────────
-        self.scroll_area = QScrollArea()
-        self.scroll_area.setWidgetResizable(True)
-        self.scroll_area.setObjectName("chatScroll")
-        self.scroll_area.setHorizontalScrollBarPolicy(
+        self._container = QWidget()
+        self._container.setObjectName("chatContainer")
+        self._container_layout = QVBoxLayout(self._container)
+        self._container_layout.setContentsMargins(0, 8, 0, 8)
+        self._container_layout.setSpacing(2)
+        self._container_layout.setAlignment(Qt.AlignmentFlag.AlignTop)
+
+        self._scroll_area = QScrollArea()
+        self._scroll_area.setWidgetResizable(True)
+        self._scroll_area.setObjectName("chatScroll")
+        self._scroll_area.setHorizontalScrollBarPolicy(
             Qt.ScrollBarPolicy.ScrollBarAlwaysOff
         )
+        self._scroll_area.setWidget(self._container)
 
-        # Container inside scroll area
-        self.container = QWidget()
-        self.container.setObjectName("chatContainer")
-        self.container_layout = QVBoxLayout(self.container)
-        self.container_layout.setContentsMargins(0, 8, 0, 8)
-        self.container_layout.setSpacing(2)
-        self.container_layout.setAlignment(Qt.AlignmentFlag.AlignTop)
+    def _create_layout(self) -> None:
+        layout = QVBoxLayout()
+        layout.setContentsMargins(0, 0, 0, 0)
+        layout.setSpacing(0)
+        layout.addWidget(self._placeholder)
+        layout.addWidget(self._scroll_area)
+        self.setLayout(layout)
+        self._scroll_area.hide()
 
-        self.scroll_area.setWidget(self.container)
+    def _connect_child_signals(self) -> None:
+        pass
 
-        # ── Placeholder ──────────────────────────────────────────────────────
-        self.placeholder = PlaceholderWidget()
+    # --- Accessors for ChatAreaController ---
 
-        root_layout.addWidget(self.placeholder)
-        root_layout.addWidget(self.scroll_area)
+    def get_container_layout(self) -> QVBoxLayout:
+        return self._container_layout
 
-        self.scroll_area.hide()
+    def get_scroll_bar(self):
+        return self._scroll_area.verticalScrollBar()
+
+    def show_scroll_area(self) -> None:
+        self._placeholder.hide()
+        self._scroll_area.show()
+
+    def show_placeholder(self) -> None:
+        self._scroll_area.hide()
+        self._placeholder.show()
