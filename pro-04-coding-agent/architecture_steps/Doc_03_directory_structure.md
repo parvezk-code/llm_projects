@@ -19,142 +19,181 @@ No tools. No RAG. No agents. Just clean LangChain chain → PyQt6 wiring.
 ## Directory Structure
 
 ```
-
 coding-agent/
-│
-├── main.py                              # Entry point — creates QApplication, MainWindow,
-│                                          MainController
-├── requirements.txt
 ├── __init__.py
+├── main.py
+├── requirements.txt
 │
 ├── app/
-│   ├── __init__.py
-│   ├── main_controller.py               # MainController — builds UI, services, state.
-│   │                                      Instantiates event handlers. Wires signals via
-│   │                                      _bind_signals(). Owns StateController.
-│   │
-│   ├── state/
-│   │   ├── __init__.py
-│   │   ├── app_state.py                 # AppState dataclass — holds state.messages (list of
-│   │   │                                  ChatMessage) and state.error (optional str).
-│   │   ├── state_controller.py          # StateController — owns all reads and writes to
-│   │   │                                  AppState. Exposes add_message(), get_messages(),
-│   │   │                                  pop_last_message(), clear_history(), has_messages(),
-│   │   │                                  set_error(), clear_error(), get_error().
-│   │   └── models/
-│   │       ├── __init__.py
-│   │       └── chat_message.py          # ChatMessage dataclass — role + content pair stored
-│   │                                      in AppState.messages. Internal model, not Pydantic.
-│   │
-│   └── event_handlers/
-│       ├── __init__.py
-│       ├── transformers/
-│       │   ├── __init__.py
-│       │   └── chain/
-│       │       ├── __init__.py
-│       │       └── history_transformer.py  # convert_history(messages: list[ChatMessage])
-│       │                                      → list[BaseMessage]. Called by
-│       │                                      SendMessageHandler before building ChainRequest.
-│       └── chat/
-│           ├── __init__.py
-│           ├── send_message_handler.py  # Handles a single chat turn. Reads state via
-│           │                              StateController. Calls history_transformer.
-│           │                              Builds ChainRequest. Runs ChainWorker (QThread).
-│           │                              Saves messages to state. Updates UI.
-│           └── clear_chat_handler.py    # Clears history and error via StateController.
-│                                          Empties chat area. Disables input bar.
-│
 ├── ui/
-│   ├── __init__.py
-│   ├── ui_composer.py                   # UIComposer — builds all UI components and their
-│   │                                      controllers. Returns UIBundle.
-│   ├── ui_bundle.py                     # UIBundle frozen dataclass — holds refs to all
-│   │                                      component controllers needed by MainController.
-│   │
-│   ├── toolbar/
-│   │   ├── __init__.py
-│   │   ├── toolbar_component.py         # Toolbar UI — holds Clear button only at Level 1.
-│   │   ├── toolbar_controller.py        # Clear button enable/disable. Signal binding.
-│   │   └── widgets/
-│   │       ├── __init__.py
-│   │       └── clear_button_widget.py   # Clear chat button widget.
-│   │
-│   ├── status_bar/
-│   │   ├── __init__.py
-│   │   ├── status_bar_component.py      # Error banner UI — icon, message label, dismiss button.
-│   │   └── status_bar_controller.py     # Show/hide error banner. Called on chain errors.
-│   │
-│   ├── chat_area/
-│   │   ├── __init__.py
-│   │   ├── chat_area_component.py       # Scrollable chat area — bubble container.
-│   │   ├── chat_area_controller.py      # Bubble management, scroll, placeholder visibility.
-│   │   └── widgets/
-│   │       ├── __init__.py
-│   │       ├── message_bubble_widget.py # Single message bubble — role-aware styling
-│   │       │                              (user vs assistant).
-│   │       └── placeholder_widget.py    # Empty state — shown when no messages exist.
-│   │
-│   └── input_bar/
-│       ├── __init__.py
-│       ├── input_bar_component.py       # Input field and Send button UI.
-│       ├── input_bar_controller.py      # Read input, clear input, enable/disable.
-│       └── widgets/
-│           ├── __init__.py
-│           ├── send_button_widget.py    # Send button widget.
-│           └── text_input_widget.py     # Multi-line text input widget.
-│
 ├── services/
-│   ├── __init__.py
-│   ├── service_composer.py              # ServiceComposer — instantiates ChainService and
-│   │                                      ChainController with config. Returns ServiceBundle.
-│   ├── service_bundle.py                # ServiceBundle frozen dataclass — holds ref to
-│   │                                      ChainController only at Level 1.
-│   │
-│   └── chain/
-│       ├── __init__.py
-│       ├── chain_controller.py          # ChainController — receives ChainRequest. Calls
-│       │                                  ChainService. Returns ChainResponse. No conversion
-│       │                                  logic — history arrives as list[BaseMessage].
-│       ├── chain_service.py             # ChainService — owns and runs the LCEL chain:
-│       │                                  prompt | llm | output_parser. Accepts formatted
-│       │                                  messages, returns raw string answer. Simple types only.
-│       ├── request.py                   # ChainRequest Pydantic model — system_prompt (str),
-│       │                                  history (list[BaseMessage]), user_input (str).
-│       │                                  Pydantic because it is a service boundary input.
-│       ├── response.py                  # ChainResponse Pydantic model — answer (optional str),
-│       │                                  error (optional str). Convenience: has_answer(),
-│       │                                  has_error(). Pydantic because it is a service boundary
-│       │                                  output.
-│       └── worker.py                    # ChainWorker(QThread) — runs ChainController.run()
-│                                          in a background thread. Emits result_ready(str) and
-│                                          error_occurred(str) signals back to the UI thread.
-│
+├── core_services/
 ├── conf/
+├── storage/
+├── styles/    --->  main.qss
+└── utils/     --->  __init__.py, logger.py
+
+```
+
+```
+
+coding-agent/app/
+├── __init__.py
+├── main_controller.py
+│
+├── state/
 │   ├── __init__.py
-│   ├── settings/
-│   │   ├── __init__.py
-│   │   ├── app_config.py                # AppConfig — Pydantic settings from .env.app.
-│   │   │                                  Holds app_name, system_prompt.
-│   │   ├── openai_config.py             # OpenAIConfig — Pydantic settings from .env.openai.
-│   │   │                                  Holds api_key, model, temperature, max_tokens.
-│   │   └── config_bundle.py             # ConfigBundle — aggregates AppConfig and OpenAIConfig
-│   │                                      into a single settings object passed to
-│   │                                      ServiceComposer.
-│   │
-│   └── env/                             # NO __init__.py — .env files only
-│       ├── .env.app                     # APP_NAME, SYSTEM_PROMPT
-│       ├── .env.openai                  # OPENAI_API_KEY, OPENAI_MODEL, TEMPERATURE,
-│       │                                  MAX_TOKENS
-│       └── .env.openai.example          # Safe-to-commit example of .env.openai
+│   ├── app_state.py
+│   ├── state_controller.py
+│   └── models/
+│       ├── __init__.py
+│       └── chat_message.py
 │
-├── styles/                              # NO __init__.py — .qss files only
-│   └── main.qss                         # App-wide Qt stylesheet
-│
-└── utils/
+└── event_handlers/
     ├── __init__.py
-    └── logger.py                        # configure_logging() — sets up Python logging to
-                                           stdout with timestamp and level. Called once in
-                                           main.py.
+    ├── transformers/
+    │   ├── __init__.py
+    │   └── chain/
+    │       ├── __init__.py
+    │       └── history_transformer.py
+    └── chat/
+        ├── __init__.py
+        ├── send_message_handler.py
+        └── clear_chat_handler.py
+
+```
+
+```
+coding-agent/services/
+├── __init__.py
+├── service_composer.py
+├── service_bundle.py
+│
+├── chain/
+│   ├── __init__.py
+│   ├── chain_controller.py
+│   ├── chain_service.py
+│   ├── request.py
+│   ├── response.py
+│   └── worker.py
+│
+└── retriever/
+    ├── __init__.py
+    └── pipeline/
+        ├── __init__.py
+        ├── controller.py
+        ├── service.py
+        ├── request.py
+        ├── response.py
+        └── worker.py
+
+```
+
+```
+
+coding-agent/core_services/
+├── __init__.py
+│
+├── document_extractors/
+│   ├── __init__.py
+│   └── text/
+│       ├── __init__.py
+│       └── plain/
+│           ├── __init__.py
+│           ├── controller.py
+│           ├── service.py
+│           ├── request.py
+│           └── response.py
+│
+├── chunking/
+│   ├── __init__.py
+│   └── code/
+│       ├── __init__.py
+│       ├── controller.py
+│       ├── service.py
+│       ├── request.py
+│       └── response.py
+│
+├── embedding_generators/
+│   ├── __init__.py
+│   └── openai/
+│       ├── __init__.py
+│       ├── controller.py
+│       ├── service.py
+│       ├── request.py
+│       └── response.py
+│
+└── vector_stores/
+    ├── __init__.py
+    └── faiss/
+        ├── __init__.py
+        ├── controller.py
+        ├── service.py
+        ├── request.py
+        └── response.py
+
+```
+
+```
+coding-agent/ui/
+├── __init__.py
+├── ui_composer.py
+├── ui_bundle.py
+│
+├── toolbar/
+│   ├── __init__.py
+│   ├── toolbar_component.py
+│   ├── toolbar_controller.py
+│   └── widgets/
+│       ├── __init__.py
+│       ├── clear_button_widget.py
+│       ├── load_project_button_widget.py
+│       └── project_label_widget.py
+│
+├── status_bar/
+│   ├── __init__.py
+│   ├── status_bar_component.py
+│   └── status_bar_controller.py
+│
+├── chat_area/
+│   ├── __init__.py
+│   ├── chat_area_component.py
+│   ├── chat_area_controller.py
+│   └── widgets/
+│       ├── __init__.py
+│       ├── message_bubble_widget.py
+│       └── placeholder_widget.py
+│
+└── input_bar/
+    ├── __init__.py
+    ├── input_bar_component.py
+    ├── input_bar_controller.py
+    └── widgets/
+        ├── __init__.py
+        ├── send_button_widget.py
+        └── text_input_widget.py
+
+```
+
+```
+
+coding-agent/conf/
+├── __init__.py
+│
+├── settings/
+│   ├── __init__.py
+│   ├── app_config.py
+│   ├── openai_config.py
+│   ├── retriever_config.py
+│   └── config_bundle.py
+│
+└── env/
+    ├── .env.app
+    ├── .env.openai
+    ├── .env.openai.example
+    ├── .env.retriever
+    └── .env.retriever.example
+
 
 ```
 
