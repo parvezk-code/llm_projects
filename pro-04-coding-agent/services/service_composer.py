@@ -1,26 +1,77 @@
-import logging
-from conf.settings.config_bundle import ConfigBundle
-from services.chain.chain_controller import ChainController
-from services.service_bundle import ServiceBundle
+# services/service_composer.py
 
-logger = logging.getLogger(__name__)
+from conf.settings.config_bundle import ConfigBundle
+
+from core_services.document_extractors.text.plain.service import PlainTextExtractorService
+from core_services.document_extractors.text.plain.controller import PlainTextExtractorController
+from core_services.chunking.code.service import CodeChunkingService
+from core_services.chunking.code.controller import CodeChunkingController
+from core_services.embedding_generators.openai.service import OpenAIEmbeddingService
+from core_services.vector_stores.faiss.service import FAISSVectorStoreService
+from core_services.vector_stores.faiss.controller import FAISSVectorStoreController
+
+from services.chain.chain_service import ChainService
+from services.chain.chain_controller import ChainController
+from services.retriever.pipeline.service import RetrieverPipelineService
+from services.retriever.pipeline.controller import RetrieverPipelineController
+from services.service_bundle import ServiceBundle
 
 
 class ServiceComposer:
-    """
-    Instantiates all service-layer controllers and wires them together.
-    Returns a ServiceBundle.
 
-    ChainController now owns ChainService instantiation internally,
-    so ServiceComposer only needs to pass OpenAIConfig to ChainController.
-    """
+    def __init__(self, config: ConfigBundle) -> None:
+        self._config = config
 
-    @staticmethod
-    def compose( config: ConfigBundle ) -> ServiceBundle:
-        logger.debug( "ServiceComposer: building services" )
+    def compose(self) -> ServiceBundle:
 
-        # Controller reads config and wires ChainService internally
-        chain_controller = ChainController( config.openai )
+        # --- chain ---
+        chain_service = ChainService(
+            api_key=self._config.openai.openai_api_key,
+            model=self._config.openai.openai_model,
+            temperature=self._config.openai.temperature,
+            max_tokens=self._config.openai.max_tokens,
+            system_prompt=self._config.app.system_prompt,
+        )
+        chain_controller = ChainController(service=chain_service)
 
-        logger.debug( "ServiceComposer: done" )
-        return ServiceBundle( chain_controller=chain_controller )
+        # --- document extractor ---
+        extractor_service = PlainTextExtractorService()
+        extractor_controller = PlainTextExtractorController(
+            service=extractor_service,
+            allowed_extensions=self._config.retriever.allowed_extensions,
+        )
+
+        # --- chunking ---
+        chunking_service = CodeChunkingService()
+        chunking_controller = CodeChunkingController(
+            service=chunking_service,
+            chunk_size=self._config.retriever.chunk_size,
+            chunk_overlap=self._config.retriever.chunk_overlap,
+        )
+
+        # --- embeddings ---
+        embedding_service = OpenAIEmbeddingService(
+            model=self._config.retriever.embedding_model,
+            api_key=self._config.openai.openai_api_key,
+        )
+
+        # --- vector store ---
+        vector_store_service = FAISSVectorStoreService(
+            embeddings=embedding_service.get_embeddings_model()
+        )
+        vector_store_controller = FAISSVectorStoreController(service=vector_store_service)
+
+        # --- retriever pipeline ---
+        retriever_pipeline_service = RetrieverPipelineService(
+            extractor_controller=extractor_controller,
+            chunking_controller=chunking_controller,
+            vector_store_controller=vector_store_controller,
+        )
+        retriever_pipeline_controller = RetrieverPipelineController(
+            service=retriever_pipeline_service
+        )
+
+        return ServiceBundle(
+            chain_controller=chain_controller,
+            retriever_controller=retriever_pipeline_controller,
+        )

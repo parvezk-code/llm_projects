@@ -10,13 +10,13 @@ logger = logging.getLogger(__name__)
 class ClearChatHandler:
     """
     Handles the Clear button click.
-
     Steps:
-    1. Reset messages and error via StateController
+    1. Reset messages, error, and project path via StateController
     2. Clear chat area bubbles (shows placeholder)
     3. Hide status bar
-    4. Disable input bar
+    4. Enable input bar
     5. Disable Clear button
+    6. Clear project label in toolbar
     """
 
     def __init__(self, state: StateController, ui: UIBundle) -> None:
@@ -29,11 +29,13 @@ class ClearChatHandler:
         # ── 1. Reset state ────────────────────────────────────────────────────
         self._state.clear_history()
         self._state.clear_error()
+        self._state.clear_project()
 
         # ── 2. Clear UI ───────────────────────────────────────────────────────
         self._ui.chat_area.clear()
         self._ui.status_bar.hide()
         self._ui.input_bar.set_enabled(True)
         self._ui.toolbar.set_clear_enabled(False)
+        self._ui.toolbar.clear_project_label()
 
         logger.debug("ClearChatHandler: done")

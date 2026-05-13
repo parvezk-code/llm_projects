@@ -1,4 +1,8 @@
+# ui/ui_composer.py
+
 from PyQt6.QtWidgets import QMainWindow, QWidget, QVBoxLayout
+
+from ui.ui_bundle import UIBundle
 from ui.toolbar.toolbar_component import ToolbarComponent
 from ui.toolbar.toolbar_controller import ToolbarController
 from ui.status_bar.status_bar_component import StatusBarComponent
@@ -7,48 +11,44 @@ from ui.chat_area.chat_area_component import ChatAreaComponent
 from ui.chat_area.chat_area_controller import ChatAreaController
 from ui.input_bar.input_bar_component import InputBarComponent
 from ui.input_bar.input_bar_controller import InputBarController
-from ui.ui_bundle import UIBundle
 
 
 class UIComposer:
-    """
-    Builds all UI components and their controllers.
-    Attaches them to the main window.
-    Returns a UIBundle.
-    """
 
-    @staticmethod
-    def compose(window: QMainWindow) -> UIBundle:
-        # ── Central widget + root layout ─────────────────────────────────────
-        central = QWidget()
-        central.setObjectName("centralWidget")
-        window.setCentralWidget(central)
+    def compose(self, window: QMainWindow) -> UIBundle:
 
-        root = QVBoxLayout(central)
-        root.setContentsMargins(0, 0, 0, 0)
-        root.setSpacing(0)
+        # --- toolbar ---
+        toolbar_component = ToolbarComponent()
+        toolbar_controller = ToolbarController(component=toolbar_component)
 
-        # ── Components ────────────────────────────────────────────────────────
-        toolbar_comp = ToolbarComponent()
-        chat_area_comp = ChatAreaComponent()
-        input_bar_comp = InputBarComponent()
-        status_bar_comp = StatusBarComponent()
+        # --- status bar ---
+        status_bar_component = StatusBarComponent()
+        status_bar_controller = StatusBarController(component=status_bar_component)
 
-        # ── Layout ────────────────────────────────────────────────────────────
-        root.addWidget(toolbar_comp)
-        root.addWidget(chat_area_comp, stretch=1)
-        root.addWidget(input_bar_comp)
-        root.addWidget(status_bar_comp)
+        # --- chat area ---
+        chat_area_component = ChatAreaComponent()
+        chat_area_controller = ChatAreaController(component=chat_area_component)
 
-        # ── Controllers ───────────────────────────────────────────────────────
-        toolbar_ctrl = ToolbarController(toolbar_comp)
-        status_bar_ctrl = StatusBarController(status_bar_comp)
-        chat_area_ctrl = ChatAreaController(chat_area_comp)
-        input_bar_ctrl = InputBarController(input_bar_comp)
+        # --- input bar ---
+        input_bar_component = InputBarComponent()
+        input_bar_controller = InputBarController(component=input_bar_component)
+
+        # --- build main window layout ---
+        central_widget = QWidget()
+        layout = QVBoxLayout(central_widget)
+        layout.setContentsMargins(0, 0, 0, 0)
+        layout.setSpacing(0)
+
+        layout.addWidget(toolbar_component)
+        layout.addWidget(status_bar_component)
+        layout.addWidget(chat_area_component, stretch=1)
+        layout.addWidget(input_bar_component)
+
+        window.setCentralWidget(central_widget)
 
         return UIBundle(
-            toolbar=toolbar_ctrl,
-            status_bar=status_bar_ctrl,
-            chat_area=chat_area_ctrl,
-            input_bar=input_bar_ctrl,
+            toolbar=toolbar_controller,
+            status_bar=status_bar_controller,
+            chat_area=chat_area_controller,
+            input_bar=input_bar_controller,
         )
