@@ -151,6 +151,11 @@ coding-agent/ui/
 │       ├── load_project_button_widget.py
 │       └── project_label_widget.py
 │
+├── folder_picker/
+│   ├── __init__.py
+│   ├── folder_picker_component.py
+│   └── folder_picker_controller.py
+│
 ├── status_bar/
 │   ├── __init__.py
 │   ├── status_bar_component.py
@@ -173,6 +178,7 @@ coding-agent/ui/
         ├── __init__.py
         ├── send_button_widget.py
         └── text_input_widget.py
+
 
 ```
 
