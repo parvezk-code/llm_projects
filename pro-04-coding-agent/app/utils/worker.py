@@ -1,5 +1,6 @@
-# app/event_handlers/business_logic/worker.py
+# app/event_handlers/utils/worker.py
 
+import logging
 from PyQt6.QtCore import QThread, pyqtSignal
 
 

@@ -1,37 +1,27 @@
 # app/event_handlers/chat/clear_chat_handler.py
 
 import logging
-from app.state.state_controller import StateController
+from app.applications.application_bundle import ApplicationBundle
 from ui.ui_bundle import UIBundle
 
 logger = logging.getLogger(__name__)
 
 
 class ClearChatHandler:
-    """
-    Handles the Clear button click.
-    Steps:
-    1. Reset messages, error, and project path via StateController
-    2. Clear chat area bubbles (shows placeholder)
-    3. Hide status bar
-    4. Enable input bar
-    5. Disable Clear button
-    6. Clear project label in toolbar
-    """
 
-    def __init__(self, state: StateController, ui: UIBundle) -> None:
-        self._state = state
+    def __init__(
+        self,
+        ui: UIBundle,
+        app: ApplicationBundle,
+    ) -> None:
         self._ui = ui
+        self._app = app
 
     def handle(self) -> None:
         logger.debug("ClearChatHandler: clearing chat")
 
-        # ── 1. Reset state ────────────────────────────────────────────────────
-        self._state.clear_history()
-        self._state.clear_error()
-        self._state.clear_project()
+        self._app.clear_chat.execute()
 
-        # ── 2. Clear UI ───────────────────────────────────────────────────────
         self._ui.chat_area.clear()
         self._ui.status_bar.hide()
         self._ui.input_bar.set_enabled(True)

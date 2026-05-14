@@ -21,6 +21,23 @@ No tools. No RAG. No agents. Just clean LangChain chain → PyQt6 wiring.
 ```
 
 coding-agent/
+├── app/
+│   ├── controllers/
+│   ├── use_cases/
+│   ├── state/
+│   └── event_handlers/
+│
+├── services/
+│   ├── llm/
+│   ├── vector_store/
+│   ├── embeddings/
+│   └── chunking/
+│
+├── ui/
+├── utils/
+└── conf/
+
+coding-agent/
 ├── __init__.py
 ├── main.py
 ├── requirements.txt
@@ -47,6 +64,8 @@ coding-agent/app/
 │   └── models/
 │       ├── __init__.py
 │       └── chat_message.py
+│
+├── application/
 │
 └── event_handlers/
     ├── __init__.py
