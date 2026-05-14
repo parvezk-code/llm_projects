@@ -36,19 +36,33 @@ class LoadProjectHandler:
 
         self._worker = Worker(
             method=self._build_retriever,
-            on_result=self._on_retriever_ready,
+            on_result=self._on_result_ready,
         )
         self._worker.start()
 
     def _build_retriever(self):
-        return self._service.retriever_controller.run(
-            RetrieverPipelineRequest(project_path=self._project_path)
-        )
+        request     =   RetrieverPipelineRequest(project_path=self._project_path)
+        response    =   self._service.retriever_controller.run(request)
+        return response
+     
 
-    def _on_retriever_ready(self, response) -> None:
+    def _on_result_ready(self, response) -> None:
+        if not response.has_error():
+            self._on_retriever_ready(response.retriever)
+        else:
+            self._on_retriever_error(response.error)
+
+    def _on_retriever_ready(self, retriever: object) -> None:
         self._state.set_project_path(self._project_path)
-        self._send_handler.set_retriever(response.retriever)
+        self._send_handler.set_retriever(retriever)
         self._ui.toolbar.set_project_name(self._project_path.split("/")[-1])
         self._ui.toolbar.set_enabled(True)
         self._ui.input_bar.set_enabled(True)
         logger.info("Retriever ready. RAG mode active.")
+
+    def _on_retriever_error(self, error: str) -> None:
+        self._state.set_error(error)
+        self._ui.status_bar.show_error(error)
+        self._ui.toolbar.set_enabled(True)
+        self._ui.input_bar.set_enabled(True)
+        logger.error(f"Retriever pipeline failed: {error}")

@@ -13,5 +13,4 @@ class Worker(QThread):
 
     def run(self) -> None:
         response = self._method()
-        if not response.has_error():
-            self.result_ready.emit(response)
+        self.result_ready.emit(response)
