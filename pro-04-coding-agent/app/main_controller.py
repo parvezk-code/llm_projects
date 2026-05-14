@@ -44,7 +44,7 @@ class MainController:
         self._load_project_handler = LoadProjectHandler(
             state=self._state,
             ui=self._ui_bundle,
-            retriever_controller=self._service_bundle.retriever_controller,
+            service=self._service_bundle,
             send_handler=self._send_handler,
         )
 

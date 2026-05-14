@@ -4,9 +4,9 @@ import logging
 from app.state.state_controller import StateController
 from app.event_handlers.chat.send_message_handler import SendMessageHandler
 from app.event_handlers.business_logic.worker import Worker
-from services.retriever.pipeline.controller import RetrieverPipelineController
 from services.retriever.pipeline.request import RetrieverPipelineRequest
 from ui.ui_bundle import UIBundle
+from services.service_bundle import ServiceBundle
 
 logger = logging.getLogger(__name__)
 
@@ -17,12 +17,12 @@ class LoadProjectHandler:
         self,
         state: StateController,
         ui: UIBundle,
-        retriever_controller: RetrieverPipelineController,
+        service:ServiceBundle,
         send_handler: SendMessageHandler,
     ) -> None:
         self._state = state
         self._ui = ui
-        self._retriever_controller = retriever_controller
+        self._service = service
         self._send_handler = send_handler
         self._worker: Worker | None = None
         self._project_path: str = ""
@@ -41,7 +41,7 @@ class LoadProjectHandler:
         self._worker.start()
 
     def _build_retriever(self):
-        return self._retriever_controller.run(
+        return self._service.retriever_controller.run(
             RetrieverPipelineRequest(project_path=self._project_path)
         )
 
