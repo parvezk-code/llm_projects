@@ -50,16 +50,14 @@ app/
 │
 └── event_handlers/
     ├── __init__.py
+    ├── business_logic/
+    │   ├── __init__.py
+    │   └── worker.py
     ├── transformers/
     │   ├── __init__.py
     │   └── chain/
     │       ├── __init__.py
     │       └── history_transformer.py
-    ├── business_logic/
-    │   ├── __init__.py
-    │   └── project/
-    │       ├── __init__.py
-    │       └── retriever_pipeline_worker.py
     ├── chat/
     │   ├── __init__.py
     │   ├── send_message_handler.py
