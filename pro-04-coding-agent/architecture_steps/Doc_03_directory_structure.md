@@ -19,6 +19,7 @@ No tools. No RAG. No agents. Just clean LangChain chain → PyQt6 wiring.
 ## Directory Structure
 
 ```
+
 coding-agent/
 ├── __init__.py
 ├── main.py
@@ -28,7 +29,6 @@ coding-agent/
 ├── ui/
 ├── services/
 ├── conf/
-├── storage/
 ├── styles/    --->  main.qss
 └── utils/     --->  __init__.py, logger.py
 
@@ -36,7 +36,7 @@ coding-agent/
 
 ```
 
-app/
+coding-agent/app/
 ├── __init__.py
 ├── main_controller.py
 │
@@ -50,14 +50,14 @@ app/
 │
 └── event_handlers/
     ├── __init__.py
-    ├── business_logic/
-    │   ├── __init__.py
-    │   └── worker.py
     ├── transformers/
     │   ├── __init__.py
     │   └── chain/
     │       ├── __init__.py
     │       └── history_transformer.py
+    ├── business_logic/
+    │   ├── __init__.py
+    │   └── worker.py
     ├── chat/
     │   ├── __init__.py
     │   ├── send_message_handler.py
@@ -70,7 +70,7 @@ app/
 
 ```
 
-services/
+coding-agent/services/
 ├── __init__.py
 ├── service_composer.py
 ├── service_bundle.py
@@ -80,8 +80,7 @@ services/
 │   ├── chain_controller.py
 │   ├── chain_service.py
 │   ├── request.py
-│   ├── response.py
-│   └── worker.py
+│   └── response.py
 │
 ├── retriever/
 │   ├── __init__.py
@@ -132,8 +131,8 @@ services/
 
 ```
 
-
 ```
+
 coding-agent/ui/
 ├── __init__.py
 ├── ui_composer.py
@@ -177,7 +176,6 @@ coding-agent/ui/
         ├── send_button_widget.py
         └── text_input_widget.py
 
-
 ```
 
 ```
@@ -218,9 +216,8 @@ Here are the updated file responsibility tables:
 | `app/main_controller.py` | Slim orchestrator. Builds UI via `UIComposer`, services via `ServiceComposer`. Owns `AppState` and `StateController`. Instantiates all event handlers. Wires signals to handler methods via `_bind_signals()` using `bind_*` methods on controllers. |
 | `app/event_handlers/chat/send_message_handler.py` | Handles a single chat turn. Reads user input via `UIBundle`. Reads history via `StateController`. Calls `history_transformer` to convert history. Builds `ChainRequest`. Starts `Worker` (QThread). On result: saves messages via `StateController`, appends bubbles to chat area, re-enables input. On error: shows status bar, rolls back user message. Owns `_retriever` — set externally via `set_retriever()` when RAG mode is active. |
 | `app/event_handlers/chat/clear_chat_handler.py` | Clears history, error, and project path via `StateController`. Empties chat area. Hides status bar. Resets toolbar project label. |
-| `app/event_handlers/project/load_project_handler.py` | Handles project folder selection. Disables UI. Starts `Worker` with `_build_retriever()` method. On result: sets project path in state, sets retriever on `SendMessageHandler`, updates toolbar project label, re-enables UI. |
-| `app/event_handlers/business_logic/worker.py` | Generic `Worker(QThread)` — accepts any callable `method` and `on_result` callback. Calls `method()` in background thread. Emits `result_ready` signal if `response.has_error()` is false. |
-
+| `app/event_handlers/project/load_project_handler.py` | Handles project folder selection. Disables UI. Starts `Worker` with `_build_retriever()` method. On result: checks `response.has_error()` — on success sets project path in state, sets retriever on `SendMessageHandler`, updates toolbar project label, re-enables UI — on error shows status bar error message, re-enables UI. |
+| `app/event_handlers/business_logic/worker.py` | Generic `Worker(QThread)` — accepts any callable `method` and `on_result` callback. Calls `method()` in background thread. Emits `result_ready` signal with full response object. Handler is responsible for checking `response.has_error()`. |
 
 ---
 
@@ -276,7 +273,6 @@ Here are the updated file responsibility tables:
 | `services/chain/chain_service.py` | `ChainService` — owns plain LCEL chain and retrieval LCEL chain. Plain chain: `prompt | llm | output_parser`. Retrieval chain: `input_map | prompt | llm | output_parser` using `lambda` extractors for `context`, `history`, `input`. Accepts `retriever: VectorStoreRetriever | None`. System prompt owned internally. |
 | `services/chain/request.py` | `ChainRequest` Pydantic model — `history: list[BaseMessage]`, `user_input: str`, `retriever: VectorStoreRetriever | None`. |
 | `services/chain/response.py` | `ChainResponse` Pydantic model — `answer: str | None`, `error: str | None`. Methods: `has_answer()`, `has_error()`. |
-| `services/chain/worker.py` | `ChainWorker(QThread)` — calls `ChainController.run(request)` in background thread. Emits `result_ready = pyqtSignal(str)` and `error_occurred = pyqtSignal(str)`. |
 
 ---
 
