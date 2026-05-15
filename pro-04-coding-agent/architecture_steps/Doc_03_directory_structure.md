@@ -91,15 +91,6 @@ coding-agent/services/
 │   ├── request.py
 │   └── response.py
 │
-├── retriever/
-│   ├── __init__.py
-│   └── pipeline/
-│       ├── __init__.py
-│       ├── controller.py
-│       ├── service.py
-│       ├── request.py
-│       └── response.py
-│
 ├── document_extractors/
 │   ├── __init__.py
 │   └── text/
@@ -216,17 +207,29 @@ Here are the updated file responsibility tables:
 
 ---
 
+
 ## File Responsibilities — Entry Point + App Layer
 
 | File | Contains |
 |---|---|
 | `main.py` | Entry point. Calls `configure_logging()`. Creates `QApplication`, `MainWindow`. Loads config via `load_config()`. Instantiates `MainController`. |
 | `utils/logger.py` | `configure_logging()` — configures Python logging to stdout with timestamp and level prefix. Called once at startup. |
-| `app/main_controller.py` | Slim orchestrator. Builds UI via `UIComposer`, services via `ServiceComposer`. Owns `AppState` and `StateController`. Instantiates all event handlers. Wires signals to handler methods via `_bind_signals()` using `bind_*` methods on controllers. |
-| `app/event_handlers/chat/send_message_handler.py` | Handles a single chat turn. Reads user input via `UIBundle`. Reads history via `StateController`. Calls `history_transformer` to convert history. Builds `ChainRequest`. Starts `Worker` (QThread). On result: saves messages via `StateController`, appends bubbles to chat area, re-enables input. On error: shows status bar, rolls back user message. Owns `_retriever` — set externally via `set_retriever()` when RAG mode is active. |
-| `app/event_handlers/chat/clear_chat_handler.py` | Clears history, error, and project path via `StateController`. Empties chat area. Hides status bar. Resets toolbar project label. |
-| `app/event_handlers/project/load_project_handler.py` | Handles project folder selection. Disables UI. Starts `Worker` with `_build_retriever()` method. On result: checks `response.has_error()` — on success sets project path in state, sets retriever on `SendMessageHandler`, updates toolbar project label, re-enables UI — on error shows status bar error message, re-enables UI. |
-| `app/event_handlers/business_logic/worker.py` | Generic `Worker(QThread)` — accepts any callable `method` and `on_result` callback. Calls `method()` in background thread. Emits `result_ready` signal with full response object. Handler is responsible for checking `response.has_error()`. |
+| `app/main_controller.py` | Slim orchestrator. Builds UI via `UIComposer`, services via `ServiceComposer`. Owns `AppState` and `StateController`. Instantiates `ApplicationBundle` and all event handlers. Wires signals to handler methods via `_bind_signals()` using `bind_*` methods on controllers. |
+| `app/event_handlers/chat/send_message_handler.py` | UI-only handler. Reads user input via `UIBundle`. Adds user bubble to chat area. Starts `Worker` (QThread) with `SendMessageCommand.execute()`. On result: appends assistant bubble — on error: removes user bubble, shows status bar. Delegates all business logic to `ApplicationBundle.send_message`. |
+| `app/event_handlers/chat/clear_chat_handler.py` | UI-only handler. Delegates state reset to `ApplicationBundle.clear_chat`. Then clears chat area, hides status bar, resets toolbar project label, re-enables input. |
+| `app/event_handlers/project/load_project_handler.py` | UI-only handler. Disables UI. Starts `Worker` with `LoadProjectCommand.execute()`. On success: calls `send_message.set_retriever()`, updates toolbar project label, re-enables UI. On error: shows status bar error, re-enables UI. Delegates all business logic to `ApplicationBundle.load_project`. |
+| `app/event_handlers/utils/worker.py` | Generic `Worker(QThread)` — accepts any callable `method` and `on_result` callback. Calls `method()` in background thread. Emits `result_ready` signal with full response object. Handler is responsible for checking `response.has_error()`. |
+
+---
+
+## File Responsibilities — Applications Layer
+
+| File | Contains |
+|---|---|
+| `app/applications/send_message_command.py` | Pure business logic for a chat turn. Adds user message to state. Converts history via `history_transformer`. Builds `ChainRequest`. Calls `chain_controller.run()`. On success adds assistant message to state — on error rolls back user message. Returns `ChainResponse`. No Qt. Owns `_retriever` — set externally via `set_retriever()` when RAG mode is active. |
+| `app/applications/clear_chat_command.py` | Clears history, error, and project path in state via `StateController`. No Qt. |
+| `app/applications/load_project_command.py` | Orchestrates extraction → chunking → vector store build in sequence. Calls `extractor_controller`, `chunking_controller`, `vector_store_controller` from `ServiceBundle`. On success sets project path in state. Returns the vector store response. No Qt. |
+| `app/applications/application_bundle.py` | `ApplicationBundle` frozen dataclass — holds `send_message: SendMessageCommand`, `clear_chat: ClearChatCommand`, `load_project: LoadProjectCommand`. |
 
 ---
 
@@ -244,7 +247,7 @@ Here are the updated file responsibility tables:
 
 | File | Contains |
 |---|---|
-| `app/event_handlers/transformers/chain/history_transformer.py` | `convert_history(messages: list[ChatMessage]) → list[BaseMessage]`. Pure function. Converts internal `ChatMessage` dataclasses to LangChain `HumanMessage` / `AIMessage` types. Called by `SendMessageHandler` before building `ChainRequest`. |
+| `app/event_handlers/transformers/chain/history_transformer.py` | `convert_history(messages: list[ChatMessage]) → list[BaseMessage]`. Pure function. Converts internal `ChatMessage` dataclasses to LangChain `HumanMessage` / `AIMessage` types. Called by `SendMessageCommand` before building `ChainRequest`. |
 
 ---
 
@@ -282,17 +285,6 @@ Here are the updated file responsibility tables:
 | `services/chain/chain_service.py` | `ChainService` — owns plain LCEL chain and retrieval LCEL chain. Plain chain: `prompt | llm | output_parser`. Retrieval chain: `input_map | prompt | llm | output_parser` using `lambda` extractors for `context`, `history`, `input`. Accepts `retriever: VectorStoreRetriever | None`. System prompt owned internally. |
 | `services/chain/request.py` | `ChainRequest` Pydantic model — `history: list[BaseMessage]`, `user_input: str`, `retriever: VectorStoreRetriever | None`. |
 | `services/chain/response.py` | `ChainResponse` Pydantic model — `answer: str | None`, `error: str | None`. Methods: `has_answer()`, `has_error()`. |
-
----
-
-## File Responsibilities — Services — Retriever
-
-| File | Contains |
-|---|---|
-| `services/retriever/pipeline/controller.py` | `RetrieverPipelineController` — receives `RetrieverPipelineRequest`. Calls `RetrieverPipelineService.build()`. Returns `RetrieverPipelineResponse`. |
-| `services/retriever/pipeline/service.py` | `RetrieverPipelineService` — orchestrates 3 stages in sequence: extract → chunk → vector store. Raises `RuntimeError` on stage failure. Returns `VectorStoreRetriever`. |
-| `services/retriever/pipeline/request.py` | `RetrieverPipelineRequest` Pydantic model — `project_path: str`. |
-| `services/retriever/pipeline/response.py` | `RetrieverPipelineResponse` Pydantic model — `retriever: VectorStoreRetriever | None`, `error: str | None`. Methods: `has_retriever()`, `has_error()`. |
 
 ---
 
@@ -345,7 +337,7 @@ Here are the updated file responsibility tables:
 | File | Contains |
 |---|---|
 | `services/service_composer.py` | `ServiceComposer` — reads `ConfigBundle`. Instantiates all services and controllers. Passes config primitives down — no config object passed beyond this point. Returns `ServiceBundle`. |
-| `services/service_bundle.py` | `ServiceBundle` frozen dataclass — holds `chain_controller`, `retriever_controller`, `extractor_controller`, `chunking_controller`, `embedding_controller`, `vector_store_controller`. |
+| `services/service_bundle.py` | `ServiceBundle` frozen dataclass — holds `chain_controller`, `extractor_controller`, `chunking_controller`, `embedding_controller`, `vector_store_controller`. |
 
 ---
 
