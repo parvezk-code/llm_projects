@@ -12,8 +12,6 @@ from services.vector_stores.faiss.service import FAISSVectorStoreService
 from services.vector_stores.faiss.controller import FAISSVectorStoreController
 from services.chain.chain_service import ChainService
 from services.chain.chain_controller import ChainController
-from services.retriever.pipeline.service import RetrieverPipelineService
-from services.retriever.pipeline.controller import RetrieverPipelineController
 from services.service_bundle import ServiceBundle
 
 
@@ -62,19 +60,8 @@ class ServiceComposer:
         )
         vector_store_controller = FAISSVectorStoreController(service=vector_store_service)
 
-        # --- retriever pipeline ---
-        retriever_pipeline_service = RetrieverPipelineService(
-            extractor_controller=extractor_controller,
-            chunking_controller=chunking_controller,
-            vector_store_controller=vector_store_controller,
-        )
-        retriever_controller = RetrieverPipelineController(
-            service=retriever_pipeline_service
-        )
-
         return ServiceBundle(
             chain_controller=chain_controller,
-            retriever_controller=retriever_controller,
             extractor_controller=extractor_controller,
             chunking_controller=chunking_controller,
             embedding_controller=embedding_controller,
