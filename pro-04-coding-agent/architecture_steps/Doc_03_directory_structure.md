@@ -53,6 +53,10 @@ coding-agent/app/
 │   ├── send_message_command.py
 │   ├── clear_chat_command.py
 │   └── load_project_command.py
+|
+├── utils/
+│   ├── __init__.py
+│   └── worker.py
 │
 └── event_handlers/
     ├── __init__.py
@@ -61,9 +65,6 @@ coding-agent/app/
     │   └── chain/
     │       ├── __init__.py
     │       └── history_transformer.py
-    ├── utils/
-    │   ├── __init__.py
-    │   └── worker.py
     ├── chat/
     │   ├── __init__.py
     │   ├── send_message_handler.py
