@@ -78,11 +78,20 @@ Service               →  receives built objects only, knows nothing about conf
 | `DomainControllers` | `@dataclass(frozen=True)` | one field for each domain controller |
 
 
-## Models (Not implemented so far)
+
+## Event handlers
 
 | Class | Type | Fields |
 |---|---|---|
-| `EventModels` | `@dataclass` | one for each event. Passes to various controllers. Stores everything. Lives as long as event lives. Type of noteshet |
+| `event-handlers` | one for each event | perform UI update|
+
+## Application layer
+
+| Class | Type | Fields |
+|---|---|---|
+| `application` | many | perform state change and api call. Shold have altlest 4 methods: changeState before service call, perform service call, state change after service call error and state change after service call success|
+
+
 
 ## App State
 
@@ -92,11 +101,12 @@ Service               →  receives built objects only, knows nothing about conf
 | `StateController` | one for entire app  | Wrapper around the state object |
 
 
-## Event handlers
+## Models (Not implemented so far)
 
 | Class | Type | Fields |
 |---|---|---|
-| `event-handlers` | one for each app | contains code to handle exactly one event |
+| `EventModels` | `@dataclass` | one for each event. Passes to various controllers. Stores everything. Lives as long as event lives. Type of noteshet |
+
 
 ---
 
@@ -156,8 +166,9 @@ MainController
 ## Component( Key responsibilities )
 
 - Dumb Renderer : receive data and update UI
-- Create UI Elements
-- Build Layout
+- A method to create UI Elements
+- A method to build Layout
+- Methods for signals if needed
 - Emit a external signal when a user interaction occurs
 - Handle internal signals (scrolling, focus, hover, animations)
 - Manage Internal UI State
@@ -237,11 +248,17 @@ MainController
 ## Event handlers
 
 - Contains method to handle exactly one event.
-- Create request object and calls domain controllers
+- Perform UI updates only. Does not change state and do not perform business logic.
+- Receive response object to update UI
+- At the end calls UI contorllers to update UI
+
+## Applications (Application layer)
+
+- Create request object and calls domain(service) controllers
 - Receive response object from the domain controllers
 - Can call multiple domain controllers. 
 - (req1--> DC1 -->res1) --> (req2--> DC2 -->res2)--> (req2--> DC3--> res3) --> UIC
-- At the end calls UI contorllers to update UI
+- Tipically shoud have 4 methods : change state before service call, to perform service call, to change state after service call error, to change state after service call success.
 
 ## MainController (Key responsibilities)
 
@@ -256,10 +273,6 @@ MainController
 - Do not contain low-level UI code. Delegate to `ComponentController`
 - Do not contain business logic (no PDF parsing, no API calls). Delegate to `DomainController`
 
-## Models
-  - Use Pydantic only at boundaries where data comes from outside. Use dataclass for internal app models.
-  - Request and response models for domain controllers: better design than using Event Models.
-  - Event Models : created one for each event. Passes to various controllers. Stores everything. Lives as long as event lives. Type of notesheet that records everything from start of an event till event handling finishes.
 
 ## State of the app
   - if you can creats SQL tables for the data of entire app then it can help understand/manage state easily.
@@ -270,6 +283,13 @@ MainController
   - use Pydantic class to read directly from env file
   - keep all config in seprate objects and bundel all these objects into single main object.
   - only service-composer has access to these config files. It pass confgs to service composers. No Component, service, handler, app state or any other code has direct access to config object
+
+
+## Models
+  - Use Pydantic only at boundaries where data comes from outside. Use dataclass for internal app models.
+  - Request and response models for domain controllers: better design than using Event Models.
+  - Event Models : created one for each event. Passes to various controllers. Stores everything. Lives as long as event lives. Type of notesheet that records everything from start of an event till event handling finishes.
+
 
 > we have try catch to handle same error in both DomainController and MainController. DomainController catches Raw library exceptions and raises clean domain error. MainController catches Clean domain errors and decides what to do next. This is the standard pattern for layered architectures. Each layer only speaks the language of the layer above it.
 
