@@ -10,5 +10,6 @@ class ChainRequest(BaseModel):
     user_input: str
     mode: str = "Simple"
     retriever: VectorStoreRetriever | None = None
+    project_path: str | None = None
 
     model_config = {"arbitrary_types_allowed": True}

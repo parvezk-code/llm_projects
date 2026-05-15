@@ -29,6 +29,7 @@ class SendMessageCommand:
             user_input=user_input,
             mode=self._state.get_mode(),
             retriever=self._retriever if self._state.has_project() else None,
+            project_path=self._state.get_project_path(),
         )
         response = self._service.chain_controller.run(request)
         if response.has_error():

@@ -1,9 +1,6 @@
 # services/chain/chain_controller.py
 
 import logging
-from langchain_core.vectorstores import VectorStoreRetriever
-from langchain_core.tools import BaseTool
-
 from services.chain.plain.plain_chain_service import PlainChainService
 from services.chain.retrieval.retrieval_chain_service import RetrievalChainService
 from services.chain.agent.agent_chain_service import AgentChainService
@@ -31,6 +28,7 @@ class ChainController:
                 answer = self._agent.run(
                     history=request.history,
                     user_input=request.user_input,
+                    project_path=request.project_path,
                 )
             elif request.mode == "RAG" and request.retriever is not None:
                 answer = self._retrieval.run(

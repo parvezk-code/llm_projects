@@ -12,6 +12,7 @@ from services.chain.chain_controller import ChainController
 from services.tools.run_code.tool import run_code
 from services.tools.read_file.tool import read_file
 from services.tools.write_file.tool import write_file
+from services.tools.list_directory.tool import list_directory
 
 from services.document_extractors.text.plain.service import PlainTextExtractorService
 from services.document_extractors.text.plain.controller import PlainTextExtractorController
@@ -40,7 +41,7 @@ class ServiceComposer:
         )
 
         # --- tools ---
-        tools = [run_code, read_file, write_file]
+        tools = [run_code, read_file, write_file, list_directory]
 
         # --- chain services ---
         plain_chain_service = PlainChainService(
