@@ -9,3 +9,4 @@ class AppState:
     messages: list[ChatMessage] = field(default_factory=list)
     error: str | None = None
     project_path: str | None = None
+    mode: str = "Simple"

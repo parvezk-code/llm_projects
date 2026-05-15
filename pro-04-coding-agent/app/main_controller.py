@@ -71,3 +71,4 @@ class MainController:
         self._ui_bundle.toolbar.bind_clear_clicked(self._clear_handler.handle)
         self._ui_bundle.toolbar.bind_load_project_clicked(self._ui_bundle.folder_picker.open)
         self._ui_bundle.folder_picker.bind_folder_selected(self._load_project_handler.handle)
+        self._ui_bundle.toolbar.bind_mode_changed(self._state.set_mode)

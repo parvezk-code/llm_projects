@@ -6,17 +6,14 @@ from PyQt6.QtCore import pyqtSignal
 from ui.toolbar.widgets.clear_button_widget import ClearButtonWidget
 from ui.toolbar.widgets.load_project_button_widget import LoadProjectButtonWidget
 from ui.toolbar.widgets.project_label_widget import ProjectLabelWidget
+from ui.toolbar.widgets.mode_combo_widget import ModeComboWidget
 
 
 class ToolbarComponent(QWidget):
-    """
-    Composes all toolbar widgets.
-    Single responsibility: wire children together
-    and expose clean signals upward.
-    """
 
     clear_clicked = pyqtSignal()
     load_project_clicked = pyqtSignal()
+    mode_changed = pyqtSignal(str)
 
     def __init__(self, parent=None) -> None:
         super().__init__(parent)
@@ -29,6 +26,7 @@ class ToolbarComponent(QWidget):
         self._clear_button = ClearButtonWidget()
         self._load_project_button = LoadProjectButtonWidget()
         self._project_label = ProjectLabelWidget()
+        self._mode_combo = ModeComboWidget()
 
     def _create_layout(self) -> None:
         layout = QHBoxLayout()
@@ -38,11 +36,13 @@ class ToolbarComponent(QWidget):
         layout.addWidget(self._load_project_button)
         layout.addWidget(self._project_label)
         layout.addStretch()
+        layout.addWidget(self._mode_combo)
         self.setLayout(layout)
 
     def _connect_child_signals(self) -> None:
         self._clear_button.clicked.connect(self.clear_clicked)
         self._load_project_button.clicked.connect(self.load_project_clicked)
+        self._mode_combo.currentTextChanged.connect(self.mode_changed)
 
     # --- Accessors for ToolbarController ---
 
@@ -55,6 +55,10 @@ class ToolbarComponent(QWidget):
     def set_enabled(self, enabled: bool) -> None:
         self._clear_button.setEnabled(enabled)
         self._load_project_button.setEnabled(enabled)
-    
+        self._mode_combo.setEnabled(enabled)
+
     def set_clear_enabled(self, enabled: bool) -> None:
         self._clear_button.setEnabled(enabled)
+
+    def get_mode(self) -> str:
+        return self._mode_combo.get_mode()

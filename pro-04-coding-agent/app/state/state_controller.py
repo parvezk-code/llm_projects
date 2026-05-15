@@ -52,3 +52,11 @@ class StateController:
 
     def clear_project(self) -> None:
         self._state.project_path = None
+
+    # --- mode ---
+
+    def set_mode(self, mode: str) -> None:
+        self._state.mode = mode
+
+    def get_mode(self) -> str:
+        return self._state.mode

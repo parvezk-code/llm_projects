@@ -27,6 +27,7 @@ class SendMessageCommand:
         request = ChainRequest(
             history=history,
             user_input=user_input,
+            mode=self._state.get_mode(),
             retriever=self._retriever if self._state.has_project() else None,
         )
         response = self._service.chain_controller.run(request)

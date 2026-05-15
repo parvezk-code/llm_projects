@@ -1,6 +1,8 @@
 # services/service_bundle.py
 
 from dataclasses import dataclass
+from langchain_core.tools import BaseTool
+
 from services.chain.chain_controller import ChainController
 from services.document_extractors.text.plain.controller import PlainTextExtractorController
 from services.chunking.code.controller import CodeChunkingController
@@ -15,3 +17,4 @@ class ServiceBundle:
     chunking_controller: CodeChunkingController
     embedding_controller: OpenAIEmbeddingController
     vector_store_controller: FAISSVectorStoreController
+    tools: list[BaseTool]

@@ -8,6 +8,7 @@ from langchain_core.vectorstores import VectorStoreRetriever
 class ChainRequest(BaseModel):
     history: list[BaseMessage]
     user_input: str
+    mode: str = "Simple"
     retriever: VectorStoreRetriever | None = None
 
     model_config = {"arbitrary_types_allowed": True}
