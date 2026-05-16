@@ -9,10 +9,14 @@ from services.chain.retrieval.retrieval_chain_service import RetrievalChainServi
 from services.chain.agent.agent_chain_service import AgentChainService
 from services.chain.chain_controller import ChainController
 
+from services.graph.graph_service import GraphService
+from services.graph.graph_controller import GraphController
+
 from services.tools.run_code.tool import run_code
 from services.tools.read_file.tool import read_file
 from services.tools.write_file.tool import write_file
 from services.tools.list_directory.tool import list_directory
+from services.tools.run_tests.tool import run_tests
 
 from services.document_extractors.text.plain.service import PlainTextExtractorService
 from services.document_extractors.text.plain.controller import PlainTextExtractorController
@@ -41,7 +45,7 @@ class ServiceComposer:
         )
 
         # --- tools ---
-        tools = [run_code, read_file, write_file, list_directory]
+        tools = [run_code, read_file, write_file, list_directory, run_tests]
 
         # --- chain services ---
         plain_chain_service = PlainChainService(
@@ -62,6 +66,10 @@ class ServiceComposer:
             retrieval_chain_service=retrieval_chain_service,
             agent_chain_service=agent_chain_service,
         )
+
+        # --- graph ---
+        graph_service = GraphService(llm=llm)
+        graph_controller = GraphController(service=graph_service)
 
         # --- document extractor ---
         extractor_service = PlainTextExtractorService()
@@ -93,6 +101,7 @@ class ServiceComposer:
 
         return ServiceBundle(
             chain_controller=chain_controller,
+            graph_controller=graph_controller,
             extractor_controller=extractor_controller,
             chunking_controller=chunking_controller,
             embedding_controller=embedding_controller,

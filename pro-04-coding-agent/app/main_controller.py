@@ -9,6 +9,7 @@ from app.state.state_controller import StateController
 from app.applications.send_message_command import SendMessageCommand
 from app.applications.clear_chat_command import ClearChatCommand
 from app.applications.load_project_command import LoadProjectCommand
+from app.applications.run_graph_command import RunGraphCommand
 from app.applications.application_bundle import ApplicationBundle
 from app.event_handlers.chat.send_message_handler import SendMessageHandler
 from app.event_handlers.chat.clear_chat_handler import ClearChatHandler
@@ -45,6 +46,10 @@ class MainController:
                 state=self._state,
             ),
             load_project=LoadProjectCommand(
+                state=self._state,
+                service=self._service_bundle,
+            ),
+            run_graph=RunGraphCommand(
                 state=self._state,
                 service=self._service_bundle,
             ),
