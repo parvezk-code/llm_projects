@@ -31,14 +31,25 @@ class SendMessageHandler:
         self._ui.status_bar.hide()
         self._ui.chat_area.add_bubble(role="user", content=user_input)
 
-        self._worker = Worker(
-            method=self._execute,
-            on_result=self._on_result_ready,
-        )
+        mode = self._ui.toolbar.get_mode()
+
+        if mode == "Graph":
+            self._worker = Worker(
+                method=self._execute_graph,
+                on_result=self._on_graph_result_ready,
+            )
+        else:
+            self._worker = Worker(
+                method=self._execute,
+                on_result=self._on_result_ready,
+            )
         self._worker.start()
 
     def _execute(self):
         return self._app.send_message.execute(self._user_input)
+
+    def _execute_graph(self):
+        return self._app.run_graph.execute(self._user_input)
 
     def _on_result_ready(self, response) -> None:
         if response.has_error():
@@ -46,6 +57,14 @@ class SendMessageHandler:
             self._ui.status_bar.show_error(response.error)
         else:
             self._ui.chat_area.add_bubble(role="assistant", content=response.answer)
+        self._set_ui_busy(False)
+
+    def _on_graph_result_ready(self, response) -> None:
+        if response.has_error():
+            self._ui.chat_area.clear_last_bubble()
+            self._ui.status_bar.show_error(response.error)
+        else:
+            self._ui.chat_area.add_bubble(role="assistant", content=response.report)
         self._set_ui_busy(False)
 
     def _set_ui_busy(self, busy: bool) -> None:

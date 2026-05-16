@@ -5,7 +5,7 @@ from PyQt6.QtWidgets import QComboBox
 
 class ModeComboWidget(QComboBox):
 
-    MODES = ["Simple", "RAG", "Agent"]
+    MODES = ["Simple", "RAG", "Agent", "Graph"]
 
     def __init__(self, parent=None) -> None:
         super().__init__(parent)
