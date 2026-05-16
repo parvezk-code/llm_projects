@@ -39,6 +39,57 @@ QPushButton#clearButton:disabled {
     border-color: #efb0b0;
 }
 
+QPushButton#loadProjectButton {
+    background-color: #d96b6b;
+    color: #ffffff;
+    border: none;
+    border-radius: 4px;
+    padding: 4px 14px;
+    font-size: 12px;
+}
+
+QPushButton#loadProjectButton:hover {
+    background-color: #bf5555;
+}
+
+QPushButton#loadProjectButton:disabled {
+    background-color: #d8a0a0;
+    color: #fff1f1;
+}
+
+QComboBox#modeCombo {
+    background-color: #fffafa;
+    color: #2a1f1f;
+    border: 1px solid #efb0b0;
+    border-radius: 4px;
+    padding: 4px 10px;
+    font-size: 12px;
+    min-width: 80px;
+}
+
+QComboBox#modeCombo:hover {
+    border-color: #d96b6b;
+}
+
+QComboBox#modeCombo:disabled {
+    background-color: #ffe0e0;
+    color: #8a6a6a;
+    border-color: #efb0b0;
+}
+
+QComboBox#modeCombo::drop-down {
+    border: none;
+    width: 20px;
+}
+
+QComboBox#modeCombo QAbstractItemView {
+    background-color: #fffafa;
+    color: #2a1f1f;
+    border: 1px solid #efb0b0;
+    selection-background-color: #d96b6b;
+    selection-color: #ffffff;
+}
+
 /* ── Chat area ───────────────────────────────────────────────────────────── */
 QWidget#chatArea {
     background-color: #fff1f1;
@@ -60,7 +111,7 @@ QLabel#userBubble {
     border-radius: 12px;
     padding: 10px 14px;
     max-width: 520px;
-    line-height: 1.5;
+    height: 1.5;
 }
 
 QLabel#assistantBubble {

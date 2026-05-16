@@ -39,6 +39,57 @@ QPushButton#clearButton:disabled {
     border-color: #c9d9e3;
 }
 
+QPushButton#loadProjectButton {
+    background-color: #2b6f97;
+    color: #ffffff;
+    border: none;
+    border-radius: 4px;
+    padding: 4px 14px;
+    font-size: 12px;
+}
+
+QPushButton#loadProjectButton:hover {
+    background-color: #235d80;
+}
+
+QPushButton#loadProjectButton:disabled {
+    background-color: #7aaac4;
+    color: #dceef8;
+}
+
+QComboBox#modeCombo {
+    background-color: #f8fcff;
+    color: #1f2937;
+    border: 1px solid #a7bfd1;
+    border-radius: 4px;
+    padding: 4px 10px;
+    font-size: 12px;
+    min-width: 80px;
+}
+
+QComboBox#modeCombo:hover {
+    border-color: #2b6f97;
+}
+
+QComboBox#modeCombo:disabled {
+    background-color: #dce9f2;
+    color: #8aa2b3;
+    border-color: #c9d9e3;
+}
+
+QComboBox#modeCombo::drop-down {
+    border: none;
+    width: 20px;
+}
+
+QComboBox#modeCombo QAbstractItemView {
+    background-color: #f8fcff;
+    color: #1f2937;
+    border: 1px solid #a7bfd1;
+    selection-background-color: #6da9c7;
+    selection-color: #ffffff;
+}
+
 /* ── Chat area ───────────────────────────────────────────────────────────── */
 QWidget#chatArea {
     background-color: #eef6fb;
