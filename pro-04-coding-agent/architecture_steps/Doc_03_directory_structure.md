@@ -1,18 +1,14 @@
-# Coding Agent — Level 1 Directory Structure
-> LangChain Basics: ChatOpenAI + ChatPromptTemplate + LCEL Chain + PyQt6 UI
+# Coding Agent — Directory Structure
+> LangChain Basics → RAG → Tools & Agents → LangGraph
 
 ---
 
-## What Level 1 Covers
+## What Each Level Covers
 
-- `ChatOpenAI` — LangChain's OpenAI LLM wrapper
-- `ChatPromptTemplate` — system + human message templates
-- LCEL chain — `prompt | llm | output_parser` pipe operator
-- `StrOutputParser` — parses LLM output to plain string
-- PyQt6 UI — chat interface wired to the LangChain chain
-- Threading — `QThread` worker so the UI never freezes
-
-No tools. No RAG. No agents. Just clean LangChain chain → PyQt6 wiring.
+- **Level 1** — `ChatOpenAI`, `ChatPromptTemplate`, LCEL chain, `StrOutputParser`, PyQt6 UI, QThread worker
+- **Level 2** — RAG: document loading, chunking, embeddings, FAISS vector store, retrieval chain
+- **Level 3** — Tools: `@tool`, `create_agent()`, tool routing, code execution via subprocess
+- **Level 4** — LangGraph: stateful graph, conditional edges, planning node, memory across turns
 
 ---
 
@@ -30,11 +26,9 @@ coding-agent/
 ├── conf/
 ├── styles/    --->  main.qss
 └── utils/     --->  __init__.py, logger.py
-
 ```
 
 ```
-
 coding-agent/app/
 ├── __init__.py
 ├── main_controller.py
@@ -52,8 +46,9 @@ coding-agent/app/
 │   ├── application_bundle.py
 │   ├── send_message_command.py
 │   ├── clear_chat_command.py
-│   └── load_project_command.py
-|
+│   ├── load_project_command.py
+│   └── run_graph_command.py
+│
 ├── utils/
 │   ├── __init__.py
 │   └── worker.py
@@ -72,11 +67,9 @@ coding-agent/app/
     └── project/
         ├── __init__.py
         └── load_project_handler.py
-
 ```
 
 ```
-
 coding-agent/services/
 ├── __init__.py
 ├── service_composer.py
@@ -97,6 +90,24 @@ coding-agent/services/
 │       ├── __init__.py
 │       └── agent_chain_service.py
 │
+├── graph/
+│   ├── __init__.py
+│   ├── state.py
+│   ├── graph_builder.py
+│   ├── graph_service.py
+│   ├── graph_controller.py
+│   ├── request.py
+│   ├── response.py
+│   └── nodes/
+│       ├── __init__.py
+│       ├── plan_node.py
+│       ├── read_node.py
+│       ├── understand_node.py
+│       ├── generate_tests_node.py
+│       ├── save_tests_node.py
+│       ├── run_tests_node.py
+│       └── report_node.py
+│
 ├── tools/
 │   ├── __init__.py
 │   ├── run_code/
@@ -109,7 +120,10 @@ coding-agent/services/
 │   ├── write_file/
 │   │   ├── __init__.py
 │   │   └── tool.py
-│   └── list_directory/
+│   ├── list_directory/
+│   │   ├── __init__.py
+│   │   └── tool.py
+│   └── run_tests/
 │       ├── __init__.py
 │       └── tool.py
 │
@@ -150,11 +164,9 @@ coding-agent/services/
         ├── service.py
         ├── request.py
         └── response.py
-
 ```
 
 ```
-
 coding-agent/ui/
 ├── __init__.py
 ├── ui_composer.py
@@ -168,7 +180,8 @@ coding-agent/ui/
 │       ├── __init__.py
 │       ├── clear_button_widget.py
 │       ├── load_project_button_widget.py
-│       └── project_label_widget.py
+│       ├── project_label_widget.py
+│       └── mode_combo_widget.py
 │
 ├── folder_picker/
 │   ├── __init__.py
@@ -197,11 +210,9 @@ coding-agent/ui/
         ├── __init__.py
         ├── send_button_widget.py
         └── text_input_widget.py
-
 ```
 
 ```
-
 coding-agent/conf/
 ├── __init__.py
 │
@@ -218,14 +229,7 @@ coding-agent/conf/
     ├── .env.openai.example
     ├── .env.retriever
     └── .env.retriever.example
-
-
 ```
-
----
-
-
-Here are the updated file responsibility tables:
 
 ---
 
@@ -236,9 +240,9 @@ Here are the updated file responsibility tables:
 | `main.py` | Entry point. Calls `configure_logging()`. Creates `QApplication`, `MainWindow`. Loads config via `load_config()`. Instantiates `MainController`. |
 | `utils/logger.py` | `configure_logging()` — configures Python logging to stdout with timestamp and level prefix. Called once at startup. |
 | `app/main_controller.py` | Slim orchestrator. Builds UI via `UIComposer`, services via `ServiceComposer`. Owns `AppState` and `StateController`. Instantiates `ApplicationBundle` and all event handlers. Wires signals to handler methods via `_bind_signals()` using `bind_*` methods on controllers. Wires `mode_changed` signal to `state.set_mode()`. |
-| `app/event_handlers/chat/send_message_handler.py` | UI-only handler. Reads user input via `UIBundle`. Adds user bubble to chat area. Starts `Worker` (QThread) with `SendMessageCommand.execute()`. On result: appends assistant bubble — on error: removes user bubble, shows status bar. Delegates all business logic to `ApplicationBundle.send_message`. |
+| `app/event_handlers/chat/send_message_handler.py` | UI-only handler. Reads user input via `UIBundle`. Adds user bubble to chat area. Checks mode — routes to `SendMessageCommand` or `RunGraphCommand` via `Worker`. On result: appends assistant bubble — on error: removes user bubble, shows status bar. |
 | `app/event_handlers/chat/clear_chat_handler.py` | UI-only handler. Delegates state reset to `ApplicationBundle.clear_chat`. Then clears chat area, hides status bar, resets toolbar project label, re-enables input. |
-| `app/event_handlers/project/load_project_handler.py` | UI-only handler. Disables UI. Starts `Worker` with `LoadProjectCommand.execute()`. On success: calls `send_message.set_retriever()`, updates toolbar project label, re-enables UI. On error: shows status bar error, re-enables UI. Delegates all business logic to `ApplicationBundle.load_project`. |
+| `app/event_handlers/project/load_project_handler.py` | UI-only handler. Disables UI. Starts `Worker` with `LoadProjectCommand.execute()`. On success: calls `send_message.set_retriever()`, updates toolbar project label, re-enables UI. On error: shows status bar error, re-enables UI. |
 | `app/event_handlers/utils/worker.py` | Generic `Worker(QThread)` — accepts any callable `method` and `on_result` callback. Calls `method()` in background thread. Emits `result_ready` signal with full response object. Handler is responsible for checking `response.has_error()`. |
 
 ---
@@ -250,7 +254,8 @@ Here are the updated file responsibility tables:
 | `app/applications/send_message_command.py` | Pure business logic for a chat turn. Adds user message to state. Converts history via `history_transformer`. Builds `ChainRequest` with `mode`, `retriever`, and `project_path` from state. Calls `chain_controller.run()`. On success adds assistant message to state — on error rolls back user message. Returns `ChainResponse`. No Qt. Owns `_retriever` — set externally via `set_retriever()` when RAG mode is active. |
 | `app/applications/clear_chat_command.py` | Clears history, error, and project path in state via `StateController`. No Qt. |
 | `app/applications/load_project_command.py` | Orchestrates extraction → chunking → vector store build in sequence. Calls `extractor_controller`, `chunking_controller`, `vector_store_controller` from `ServiceBundle`. On success sets project path in state. Returns the vector store response. No Qt. |
-| `app/applications/application_bundle.py` | `ApplicationBundle` frozen dataclass — holds `send_message: SendMessageCommand`, `clear_chat: ClearChatCommand`, `load_project: LoadProjectCommand`. |
+| `app/applications/run_graph_command.py` | Pure business logic for graph mode. Reads `project_path` from state. Builds `GraphRequest` with `project_path`, `user_input`, `thread_id`. Calls `graph_controller.run()`. On success adds report to state as assistant message. Returns `GraphResponse`. No Qt. |
+| `app/applications/application_bundle.py` | `ApplicationBundle` frozen dataclass — holds `send_message`, `clear_chat`, `load_project`, `run_graph`. |
 
 ---
 
@@ -283,7 +288,7 @@ Here are the updated file responsibility tables:
 | `ui/toolbar/widgets/clear_button_widget.py` | Clear chat QPushButton widget. |
 | `ui/toolbar/widgets/load_project_button_widget.py` | Load Project QPushButton widget. |
 | `ui/toolbar/widgets/project_label_widget.py` | QLabel showing loaded project folder name. Exposes `set_project_name()` and `clear_project_name()`. |
-| `ui/toolbar/widgets/mode_combo_widget.py` | QComboBox with 3 modes: Simple, RAG, Agent. Exposes `get_mode()`. |
+| `ui/toolbar/widgets/mode_combo_widget.py` | QComboBox with 4 modes: Simple, RAG, Agent, Graph. Exposes `get_mode()`. |
 | `ui/folder_picker/folder_picker_component.py` | Wraps `QFileDialog` for folder selection. Emits `folder_selected: pyqtSignal(str)` when a folder is chosen. Emits nothing on cancel. Exposes `open()` accessor. |
 | `ui/folder_picker/folder_picker_controller.py` | Manages `FolderPickerComponent`. Exposes `bind_folder_selected()` and `open()`. |
 | `ui/status_bar/status_bar_component.py` | Error banner — message label, dismiss button. Hidden by default. Emits `dismiss_clicked` signal. Exposes `set_message()`, `clear_message()`. |
@@ -312,6 +317,26 @@ Here are the updated file responsibility tables:
 
 ---
 
+## File Responsibilities — Services — Graph
+
+| File | Contains |
+|---|---|
+| `services/graph/state.py` | `GraphState` TypedDict — holds `messages`, `user_input`, `project_path`, `plan`, `target_files`, `file_contents`, `understanding`, `test_code`, `test_file_path`, `test_results`, `report`. Uses `add_messages` reducer for message accumulation. |
+| `services/graph/graph_builder.py` | `GraphBuilder` — builds the `StateGraph`. Registers all nodes. Sets entry point to `plan`. Wires conditional edges based on `plan` field in state. Compiles with `MemorySaver` checkpointer for cross-turn memory. |
+| `services/graph/graph_service.py` | `GraphService` — owns compiled graph instance. Calls `graph.invoke()` with initial state and thread config. Returns final `report` string. |
+| `services/graph/graph_controller.py` | `GraphController` — receives `GraphRequest`. Calls `GraphService.run()`. Returns `GraphResponse`. |
+| `services/graph/request.py` | `GraphRequest` Pydantic model — `project_path: str`, `user_input: str`, `thread_id: str`. |
+| `services/graph/response.py` | `GraphResponse` Pydantic model — `report: str | None`, `error: str | None`. Methods: `has_report()`, `has_error()`. |
+| `services/graph/nodes/plan_node.py` | `make_plan_node(llm)` — first node. Calls LLM to analyse user instruction. Returns `plan: list[str]` of nodes to run and `target_files: list[str]`. Sets `off_topic_message` if input is unrelated to coding tasks. |
+| `services/graph/nodes/read_node.py` | `read_node` — reads `.py` files from `project_path`. If `target_files` is set, reads only those files. Otherwise reads all `.py` files recursively. Returns `file_contents: dict[str, str]`. |
+| `services/graph/nodes/understand_node.py` | `make_understand_node(llm)` — calls LLM to summarise each file, key functions/classes, and inter-file relationships. Returns `understanding: str`. |
+| `services/graph/nodes/generate_tests_node.py` | `make_generate_tests_node(llm)` — calls LLM to write pytest tests based on `understanding` and `file_contents`. Strips markdown fences if present. Returns `test_code: str`. |
+| `services/graph/nodes/save_tests_node.py` | `save_tests_node` — writes `test_code` to `test_generated.py` in `project_path`. Returns `test_file_path: str`. |
+| `services/graph/nodes/run_tests_node.py` | `run_tests_node` — runs `test_file_path` via `pytest` subprocess. Returns `test_results: str`. |
+| `services/graph/nodes/report_node.py` | `make_report_node(llm)` — if `off_topic_message` already set, returns it directly. Otherwise calls LLM to write a report covering code summary, generated tests, and test results. Returns `report: str`. |
+
+---
+
 ## File Responsibilities — Services — Tools
 
 | File | Contains |
@@ -321,6 +346,7 @@ Here are the updated file responsibility tables:
 | `services/tools/read_file/tool.py` | `read_file` LangChain tool — reads file contents at a given path. Returns error string if not found. |
 | `services/tools/write_file/tool.py` | `write_file` LangChain tool — writes content to a file. Creates parent directories if needed. |
 | `services/tools/list_directory/tool.py` | `list_directory` LangChain tool — recursively lists all files and subdirectories at a given path. Labels each entry as `[file]` or `[dir]`. |
+| `services/tools/run_tests/tool.py` | `run_tests` LangChain tool — runs a pytest test file and returns full output including pass/fail results. |
 
 ---
 
@@ -372,8 +398,8 @@ Here are the updated file responsibility tables:
 
 | File | Contains |
 |---|---|
-| `services/service_composer.py` | `ServiceComposer` — reads `ConfigBundle`. Instantiates shared `ChatOpenAI` LLM. Instantiates all chain services, tools, and infrastructure controllers. Passes config primitives down — no config object passed beyond this point. Returns `ServiceBundle`. |
-| `services/service_bundle.py` | `ServiceBundle` frozen dataclass — holds `chain_controller`, `extractor_controller`, `chunking_controller`, `embedding_controller`, `vector_store_controller`, `tools`. |
+| `services/service_composer.py` | `ServiceComposer` — reads `ConfigBundle`. Instantiates shared `ChatOpenAI` LLM. Instantiates all chain services, graph service, tools, and infrastructure controllers. Passes config primitives down — no config object passed beyond this point. Returns `ServiceBundle`. |
+| `services/service_bundle.py` | `ServiceBundle` frozen dataclass — holds `chain_controller`, `graph_controller`, `extractor_controller`, `chunking_controller`, `embedding_controller`, `vector_store_controller`, `tools`. |
 
 ---
 
@@ -428,6 +454,20 @@ Here are the updated file responsibility tables:
 | Tool routing | `chain_controller.py` | How the agent decides which tool to call |
 | Agent system prompt injection | `agent_chain_service.py` | How to inject dynamic context (project path) into agent behavior |
 | `CodeExecutor` via subprocess | `run_code/executor.py` | How to safely execute code and capture output |
+
+---
+
+## Key LangChain Concepts Introduced at Level 4
+
+| Concept | Where It Lives | What You Learn |
+|---|---|---|
+| `StateGraph` | `graph_builder.py` | How to define a stateful LangGraph graph |
+| `TypedDict` state | `state.py` | How graph state is typed and shared across nodes |
+| `add_messages` reducer | `state.py` | How messages accumulate across nodes automatically |
+| Conditional edges | `graph_builder.py` | How to route between nodes based on state |
+| `MemorySaver` checkpointer | `graph_builder.py` | How LangGraph persists state across conversation turns |
+| Planning node | `nodes/plan_node.py` | How to use an LLM to decide which nodes to execute |
+| Node factories | `nodes/understand_node.py` etc. | How to inject dependencies (LLM) into nodes via factory functions |
 
 ---
 
