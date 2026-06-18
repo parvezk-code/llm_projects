@@ -18,18 +18,63 @@ This project uses four design documents, one per architectural concern (not one 
 ## 3. Top-Level Structure
 
 ```
+
 app/
-├── __init__.py
-├── ui/                  (see ui_design.md)
-├── core/                (see core_design.md)
-├── api_server/          (see api_design.md - not yet created)
-│   └── main.py            entry point, runs the FastAPI server
-├── api_client/          (see api_design.md - not yet created)
+├── ui/
+│   ├── main_window.py
+│   ├── components/
+│   ├── controllers/
+│   └── pages/
+│
+├── core/                    # business logic only
+│
+├── api_server/              # exposes core through APIs
+│
+├── api_client/              # client for api_server
+│
+├── desktop/
+│   ├── main_controller.py   # orchestration + wiring
+│   │
+│   ├── state/
+│   │   ├── app_state.py
+│   │   ├── chat_state.py
+│   │   └── document_state.py
+│   │
+│   ├── state_controller/
+│   │   └── state_controller.py
+│   │
+│   ├── actions/             # state changes + workflows
+│   │
+│   ├── event_handlers/      # UI events only
+│   │
+│   └── gateways/            # local/remote abstraction
+│
 ├── desktop_local/
-│   └── main.py            entry point, launches PyQt6 app wired to core/ directly
+│   └── main.py
+│
 └── desktop_remote/
-    └── main.py            entry point, launches PyQt6 app wired to api_client/
+    └── main.py
+
+
 ```
+
+```
+
+UI Controllers → manipulate widgets,  widget manipulation only
+
+Event Handlers → react to user events, calls actions, updates UI
+
+Actions → own workflows and state mutations. call gateway
+
+State Controller → owns state access
+
+Gateways → access local or remote services. local/remote abstraction
+
+Core → business logic
+
+
+```
+
 
 > **Note:** There is no project-root `main.py`. An earlier version of this project's structure proposed one root-level `main.py` as the single entry point; that is now superseded, since there are three independent ways to launch part of this application, each requiring a different backend to be wired up before `ui/` is shown.
 
