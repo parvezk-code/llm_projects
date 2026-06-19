@@ -57,17 +57,29 @@ Action
 
 ## Typical Flow
 
-```text id="1u5v2s"
-Event Handler
-    ↓
-Action
-    ↓
-State Controller
-    ↓
-Gateway
-    ↓
-Core
+
 ```
+                                  User Interaction generate events
+                                              ↓
+                                        Event Handler
+                                              ↓
+                                           Action
+                                       ┌─────┼─────┐
+                                       │     │     │
+                                       ↓     ↓     ↓
+                       State Controller   Gateway   State Controller
+                            (read)                      (write)
+                              │             │              │
+                              ↓             ↓              ↓
+                          State Object    Core         State Object
+                          (read data)  (process)      (save result)
+```
+
+* the Action branches three ways, one after another — read
+  State, call Gateway, then write State.
+
+* Results flow back up the same branches to the Action, which then returns
+  upward through Event Handler → Component Controller → UI Component → User.
 
 ---
 
@@ -96,3 +108,4 @@ Core
 * Core access happens through Gateways.
 * UI updates are not performed by Actions.
 * Actions remain independent of UI implementation.
+* Only Actions may read State and call a Gateway within the same workflow step. Event Handlers and Gateways never access State directly.

@@ -10,29 +10,36 @@ This document connects all architectural layers into a single flow model.
 
 ## Main Flow (User Action → Result)
 
-```text id="a1k9pd"
-User
-  ↓
-UI Component
-  ↓
-Component Controller
-  ↓
-Event Handler
-  ↓
-Action
-  ↓
-State Controller
-  ↓
-Gateway
-  ↓
-Core
+
 ```
+                                  User Interaction generate events
+                                              ↓
+                                        Event Handler
+                                              ↓
+                                           Action
+                                       ┌─────┼─────┐
+                                       │     │     │
+                                       ↓     ↓     ↓
+                       State Controller   Gateway   State Controller
+                            (read)                      (write)
+                              │             │              │
+                              ↓             ↓              ↓
+                          State Object    Core         State Object
+                          (read data)  (process)      (save result)
+```
+
+* the Action branches three ways, one after another — read
+  State, call Gateway, then write State.
+
+* Results flow back up the same branches to the Action, which then returns
+  upward through Event Handler → Component Controller → UI Component → User.
 
 ---
 
 ## Response Flow (Result → UI Update)
 
-```text id="b8m2xz"
+```text 
+
 Core
   ↓
 Gateway
