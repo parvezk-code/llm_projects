@@ -12,14 +12,27 @@
 ## Directory Structure
 
 ```text
+
 app/
-├── ui/                 # User interface
-├── core/               # Business logic
-├── api_server/         # Exposes core through APIs
-├── api_client/         # Consumes remote APIs
-├── desktop/            # Desktop application logic
-├── desktop_local/      # Local startup
-└── desktop_remote/     # Remote startup
+|
+├── ui/                             # User interface
+|
+├── core/                           # Business logic
+|
+├── api_server/                     # Exposes core through APIs
+|
+├── api_client/                     # Consumes remote APIs
+|
+├── desktop/                        # Desktop application logic
+|
+├── desktop_local/                  # Local startup
+|       |
+|       └── main_controller.py      # Application orchestrator
+|
+└── desktop_remote/                 # Remote startup
+        |
+        └── main_controller.py      # Application orchestrator
+
 ```
 
 ---
