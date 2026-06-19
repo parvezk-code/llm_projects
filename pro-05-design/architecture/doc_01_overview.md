@@ -27,11 +27,11 @@ app/
 |
 ├── desktop_local/                  # Local startup
 |       |
-|       └── main_controller.py      # Application orchestrator
+|       └── main.py                 # Application orchestrator
 |
 └── desktop_remote/                 # Remote startup
         |
-        └── main_controller.py      # Application orchestrator
+        └── main.py                 # Application orchestrator
 
 ```
 
@@ -39,7 +39,8 @@ app/
 
 ## Dependency Direction
 
-```text
+```
+
 UI
  ↓
 Event Handlers
@@ -49,6 +50,7 @@ Actions
 State Controller + Gateways
  ↓
 Core
+
 ```
 
 * Dependencies flow downward only.

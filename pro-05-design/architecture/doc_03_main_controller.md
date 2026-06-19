@@ -22,7 +22,7 @@ desktop/
 * Create application dependencies.
 * Create state objects.
 * Create State Controller.
-* Create Gateways.
+* Receive ready-made Gateways from the launcher (`desktop_local/` or `desktop_remote/`).
 * Create Actions.
 * Create Action Bundles.
 * Create Event Handler Bundles.
@@ -67,6 +67,30 @@ The Main Controller creates and connects all dependencies.
 
 ---
 
+## Launcher Boundary
+
+The Main Controller is mode-agnostic. It never decides whether the app
+runs in local or remote mode, and it never builds Gateway implementations
+itself.
+
+```text
+desktop_local/   → builds LOCAL Gateways  → starts Main Controller
+desktop_remote/  → builds REMOTE Gateways → starts Main Controller
+```
+
+* `desktop_local/` is the **local launcher**: it constructs Gateway
+  implementations that call Core directly, then creates and runs Main
+  Controller, passing those Gateways in.
+* `desktop_remote/` is the **remote launcher**: it constructs Gateway
+  implementations that call Core through `api_client/`, then creates and
+  runs Main Controller, passing those Gateways in.
+* The actual application entry point (e.g. `python main.py`) lives inside
+  the launcher folder, not inside `desktop/`.
+* Main Controller only ever receives Gateways — it has no knowledge of
+  which mode produced them.
+
+---
+
 ## Must Not
 
 * Contain business logic.
@@ -75,6 +99,8 @@ The Main Controller creates and connects all dependencies.
 * Update State directly.
 * Manipulate UI widgets directly.
 * Contain event-handling logic.
+* Decide local vs remote mode.
+* Build Gateway implementations itself.
 
 ---
 
