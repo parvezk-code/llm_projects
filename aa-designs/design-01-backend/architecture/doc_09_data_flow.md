@@ -57,6 +57,11 @@ UI Component
 User
 ```
 
+* Between Action and Event Handler, results may be Core models; from the Event
+  Handler downward to the UI, only primitives or UI-local view types are
+  passed. The Event Handler performs this unpacking.
+  (See *Event Handlers → Core Model Translation Boundary*.)
+
 ---
 
 ## State Flow
@@ -128,6 +133,7 @@ UI Component
 * Data flows downward through architecture layers.
 * Results flow upward through the same path.
 * UI never accesses Core or State directly.
+* UI never imports or names Core domain models; Event Handlers unpack them into primitives at the UI boundary.
 * Event Handlers never access State directly.
 * Actions are the only layer allowed to mutate State.
 * Gateways abstract infrastructure complexity.

@@ -71,6 +71,38 @@ Component Controller
 
 ---
 
+## Core Model Translation Boundary
+
+Event Handlers are the single translation point between Core domain models
+and the UI. Actions return results to Event Handlers as Core models (e.g.
+`ChatMessage`, `PDFDocument`). The Event Handler reads the fields it needs off
+those models and passes **primitive values** (or UI-local view types) down to
+Component Controllers.
+
+Component Controllers and the UI layer never receive, name, or import Core
+models. The Core model stops at the Event Handler.
+
+```text
+
+Action  ──returns──>  ChatMessage / PDFDocument   (Core model)
+                             ↓
+                       Event Handler   (reads .role, .content, .filename …)
+                             ↓
+                  Component Controller   (receives str / bool / primitives only)
+
+```
+
+**Rule:** The Event Handler unpacks; the Component Controller consumes
+primitives. This keeps the UI layer free of any compile-time dependency on
+Core, satisfying the dependency-direction rule (UI never depends on Core).
+
+If a payload grows large enough that long primitive argument lists become
+unwieldy, the Event Handler may map the Core model into a **UI-local view
+object** — a dumb dataclass owned by the UI layer, not by Core. The boundary
+rule is unchanged: no Core type crosses into the UI layer.
+
+---
+
 ## May Access
 
 * Component Controllers
@@ -97,3 +129,4 @@ Component Controller
 * UI updates must go through Component Controllers.
 * State changes must go through Actions.
 * Business operations must go through Actions.
+* Event Handlers unpack Core models into primitives (or UI-local view types) before calling Component Controllers; Core models never cross into the UI layer.

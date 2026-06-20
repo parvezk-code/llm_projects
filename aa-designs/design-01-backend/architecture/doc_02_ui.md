@@ -27,7 +27,7 @@ ui/
 
 ---
 
-## Component 
+## Component
 
 > Responsibilities
 
@@ -74,6 +74,24 @@ ui/
 * Access state directly.
 * Communicate with other component controllers directly.
 * Perform application workflows.
+* Receive, name, or import Core domain models (e.g. `ChatMessage`, `PDFDocument`).
+
+---
+
+## Data Contract
+
+Component Controller methods accept **only primitive values or UI-local view
+types**. Core domain models are never passed into the UI layer; they are
+unpacked by the Event Handler before the controller is called (see
+*Event Handlers → Core Model Translation Boundary*).
+
+This guarantees the UI layer has no import dependency on Core, satisfying the
+dependency-direction rule (UI never depends on Core).
+
+If a payload grows large enough that long primitive argument lists become
+unwieldy, a **UI-local view object** may be used instead — a dumb dataclass
+owned by the UI layer, not by Core. The boundary rule is unchanged: no Core
+type crosses into the UI layer.
 
 ---
 
@@ -105,4 +123,4 @@ A page assembles components into a screen.
 * Components never communicate directly.
 * Controllers never communicate directly.
 * UI layer contains no business logic.
-* Each ui component lives in its seprate directory inside the components/ directory.
+* UI layer never imports or names Core domain models; controllers consume primitives or UI-local view types only.
