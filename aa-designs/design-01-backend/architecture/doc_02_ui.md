@@ -11,18 +11,25 @@
 
 ## Directory Structure
 
-```text
+```
+
 ui/
-├── main_window.py          # Top-level application window
 │
-├── pages/                 # Screen composition
-│   └── main_page.py       # Main application page
+├── screen_manager.py       # selects + builds ONE screen at startup, returns UIBundle
 │
-├── components/            # Reusable UI components
+├── main_window.py          # Top-level application window. QMainWindow shell, single central widget
 │
-├── controllers/           # UI component controllers
+├── ui_bundle.py            # UIBundle dataclass. bundels all the component controllers
 │
-└── styles/                # UI styling resources
+├── pages/                  # Screen composition. can contain multiple screens for the app.
+│   ├── main_page.py        # Default main application page
+│   └── main_page_2.py      # optional other look variants
+│
+├── components/             # Reusable UI components
+│
+├── controllers/            # UI component controllers
+│
+└── styles/                 # UI styling resources
 ```
 
 ---
@@ -75,6 +82,12 @@ ui/
 * Communicate with other component controllers directly.
 * Perform application workflows.
 * Receive, name, or import Core domain models (e.g. `ChatMessage`, `PDFDocument`).
+
+---
+
+```
+The key principle: ui/ owns all window/page wiring. Main Controller never touches widgets, windows, or layouts — it only asks ui/ to activate a screen and gets back a UIBundle to wire handlers to.
+```
 
 ---
 
