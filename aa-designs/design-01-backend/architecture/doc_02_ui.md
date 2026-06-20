@@ -27,11 +27,9 @@ ui/
 
 ---
 
-## Component Responsibilities
+## Component 
 
-A component is a dumb UI renderer.
-
-### Responsibilities
+> Responsibilities
 
 * Create UI elements.
 * Build layouts.
@@ -45,7 +43,7 @@ A component is a dumb UI renderer.
 - Provide one method to build Layout if needed
 - Methods for signals if needed
 
-### Must Not
+> Must Not
 
 * Contain business logic.
 * Decide application workflow.
@@ -55,7 +53,7 @@ A component is a dumb UI renderer.
 
 ---
 
-## Component Controller Responsibilities
+## Component Controller
 
 > Responsibilities
 
@@ -107,3 +105,4 @@ A page assembles components into a screen.
 * Components never communicate directly.
 * Controllers never communicate directly.
 * UI layer contains no business logic.
+* Each ui component lives in its seprate directory inside the components/ directory.
