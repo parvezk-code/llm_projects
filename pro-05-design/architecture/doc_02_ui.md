@@ -57,23 +57,23 @@ A component is a dumb UI renderer.
 
 ## Component Controller Responsibilities
 
-A Component Controller manages a single component.
+> Responsibilities
 
-### Responsibilities
-
+* One controller per component.
+* Act as the bridge between application logic and the component.
+* Act as the bridge between the component and the rest of the app.
 * Own UI-level behavior of its component.
 * Expose operation methods used during event handling.
+* Expose methods to bind component events to external callback functions/methods.
 * Read values from the component.
 * Update component UI.
 * Manage internal UI state.
-* Bind component events to external callbacks.
-* Provide one binding method per exposed component event.
-* Act as the bridge between application logic and the component.
 
-### Must Not
+> Must Not
 
 * Contain business logic.
 * Access core directly.
+* Access state directly.
 * Communicate with other component controllers directly.
 * Perform application workflows.
 
