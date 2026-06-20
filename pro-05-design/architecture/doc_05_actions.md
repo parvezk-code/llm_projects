@@ -10,7 +10,8 @@ They are responsible for coordinating state changes and business operations.
 
 ## Directory Structure
 
-```text id="j1s4nv"
+```
+
 actions/
 ├── chat/                    # Chat-related workflows
 │   ├── send_message_action.py
@@ -28,18 +29,8 @@ actions/
 └── session/                 # Session-related workflows
     ├── start_session_action.py
     └── close_session_action.py
-```
+  
 
----
-
-## Organization Rule
-
-Actions are organized by business/domain topic.
-
-```text id="j9qfuy"
-Topic
-    ↓
-Action
 ```
 
 ---
@@ -109,3 +100,17 @@ Action
 * UI updates are not performed by Actions.
 * Actions remain independent of UI implementation.
 * Only Actions may read State and call a Gateway within the same workflow step. Event Handlers and Gateways never access State directly.
+
+---
+
+## Organization Rule
+
+Actions are organized by business/domain topic.
+
+```
+
+Topic
+    ↓
+Action
+
+```
