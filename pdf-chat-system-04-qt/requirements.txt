@@ -1,8 +1,7 @@
-# requirements.txt
+# Chat PDF — runtime dependencies
 
-PyQt6>=6.6.0
-openai>=1.0.0
-pymupdf>=1.23.0
-python-dotenv>=1.0.0
-pydantic>=2.0.0
-pydantic-settings>=2.0.0
+PyQt6        # desktop UI framework
+
+openai       # LLM client (used by core/services/llm_service.py)
+
+PyMuPDF      # provides the `fitz` module (used by core/services/pdf_service.py)
