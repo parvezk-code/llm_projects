@@ -7,3 +7,5 @@ __pycache__/
 zz_temp/
 .codex
 .codex_memory/
+
+zz_test/test_doc_fail.pdf
