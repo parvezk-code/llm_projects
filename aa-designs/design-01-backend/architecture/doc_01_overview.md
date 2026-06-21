@@ -27,7 +27,12 @@ app/
 |
 ├── desktop_local/                  # Local launcher: builds LOCAL Gateways, starts app
 |
-└── desktop_remote/                 # Remote launcher: builds REMOTE Gateways, starts app
+├──desktop_remote/                  # Remote launcher: builds REMOTE Gateways, starts app
+|
+└── conf/                           # pydantic config classes and env files                  
+    ├── settings/
+    └── env/
+
 
 ```
 
