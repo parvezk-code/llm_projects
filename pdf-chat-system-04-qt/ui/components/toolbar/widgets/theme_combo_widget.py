@@ -14,6 +14,9 @@ class ThemeComboWidget(QComboBox):
         ("Light Teal",   "theme_05_light_teal.qss"),
         ("Ocean Blue",   "theme_06_ocean_blue.qss"),
         ("Purple Haze",  "theme_07_purple_haze.qss"),
+        ("Crimson Red",  "theme_08_crimson_red.qss"),
+        ("Cyan Sky",     "theme_09_cyan_sky.qss"),
+        ("Slate Gray",   "theme_10_slate_gray.qss"),
     ]
 
     def __init__(self, parent=None):
