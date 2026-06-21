@@ -86,3 +86,5 @@ State Object
 * Event Handlers never access State directly.
 * UI never accesses State directly.
 * Actions own state changes.
+* State may import core/models/ (passive dataclasses) for storage and type annotations. 
+* State must never depend on Core logic (services, processors, validators) or on Actions.
