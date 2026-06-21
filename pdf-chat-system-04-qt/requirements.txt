@@ -1,7 +1,9 @@
 # Chat PDF — runtime dependencies
 
-PyQt6        # desktop UI framework
+PyQt6                   # desktop UI framework
 
-openai       # LLM client (used by core/services/llm_service.py)
+openai                  # LLM client (used by core/services/llm_service.py)
 
-PyMuPDF      # provides the `fitz` module (used by core/services/pdf_service.py)
+PyMuPDF                 # provides the `fitz` module (used by core/services/pdf_service.py)
+
+pydantic-settings       # typed settings loaded from conf/env/.env* files
