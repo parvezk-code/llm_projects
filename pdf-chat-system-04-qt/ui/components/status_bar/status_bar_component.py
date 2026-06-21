@@ -7,8 +7,10 @@ from PyQt6.QtCore import Qt, pyqtSignal
 class StatusBarComponent(QWidget):
     """
     Inline error banner. Hidden until an error is shown.
-    NOTE: the inline styling here is temporary and will move to QSS
-    (object names) in the styling pass.
+
+    Styling is controlled entirely by the active QSS theme via the selectors
+    StatusBarComponent, StatusBarComponent QLabel, and
+    StatusBarComponent QPushButton. No inline styles here.
     """
 
     dismissed = pyqtSignal()
@@ -22,26 +24,13 @@ class StatusBarComponent(QWidget):
 
     def _create_widgets(self):
         self._warning_icon = QLabel("⚠")
-        self._warning_icon.setStyleSheet("font-size: 14px; color: #CC0000;")
 
         self._error_message_label = QLabel("")
         self._error_message_label.setAlignment(
             Qt.AlignmentFlag.AlignLeft | Qt.AlignmentFlag.AlignVCenter)
-        self._error_message_label.setStyleSheet("font-size: 13px; color: #CC0000;")
 
         self._dismiss_btn = QPushButton("×")
         self._dismiss_btn.setFixedSize(24, 24)
-        self._dismiss_btn.setStyleSheet("""
-            QPushButton {
-                border: none;
-                color: #CC0000;
-                font-size: 16px;
-                font-weight: bold;
-            }
-            QPushButton:hover {
-                color: #990000;
-            }
-        """)
 
     def _create_layout(self):
         layout = QHBoxLayout()
@@ -50,7 +39,6 @@ class StatusBarComponent(QWidget):
         layout.addWidget(self._error_message_label, stretch=1)
         layout.addWidget(self._dismiss_btn)
         self.setLayout(layout)
-        self.setStyleSheet("background-color: #FFDEDE;")
 
     def _connect_signals(self):
         self._dismiss_btn.clicked.connect(self.dismissed)

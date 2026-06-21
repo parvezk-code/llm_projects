@@ -7,12 +7,13 @@ class ToolbarEventHandler:
     """
     Handles events emitted by the toolbar (upload, clear, theme).
 
-    Component controllers are injected, never imported.
+    Component controllers and the style manager are injected, never imported.
     """
 
     def __init__(
         self,
         actions: ActionBundle,
+        style_manager,            # StyleManager
         file_picker_controller,   # FilePickerController
         toolbar_controller,       # ToolbarController
         chat_area_controller,     # ChatAreaController
@@ -20,6 +21,7 @@ class ToolbarEventHandler:
         status_bar_controller,    # StatusBarController
     ):
         self._actions = actions
+        self._style = style_manager
         self._file_picker = file_picker_controller
         self._toolbar = toolbar_controller
         self._chat_area = chat_area_controller
@@ -40,7 +42,6 @@ class ToolbarEventHandler:
         self._status_bar.hide_error()
 
     def on_theme_changed(self, theme_filename: str):
-        # Deferred: applying the .qss theme belongs to the styling pass.
-        pass
+        self._style.apply_theme(theme_filename)
 
 # desktop/event_handlers/toolbar_event_handler.py
