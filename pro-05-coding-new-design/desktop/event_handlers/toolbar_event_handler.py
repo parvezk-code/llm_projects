@@ -1,47 +1,45 @@
 # desktop/event_handlers/toolbar_event_handler.py
 
 from desktop.action_bundles.action_bundle import ActionBundle
+from ui.style_manager import StyleManager
 from ui.controllers.toolbar_controller import ToolbarController
 from ui.controllers.chat_area_controller import ChatAreaController
-from ui.controllers.status_bar_controller import StatusBarController
 from ui.controllers.input_bar_controller import InputBarController
+from ui.controllers.status_bar_controller import StatusBarController
+
 
 class ToolbarEventHandler:
     """
-    Handles events emitted by the ToolbarComponent.
+    Handles events emitted by ToolbarComponent: clear, mode_changed.
     Organised by emitting component — one handler, one component.
-
-    Injected controllers:
-      - toolbar: update label, enable/disable
-      - chat_area: clear bubbles
-      - status_bar: hide on clear
-      - input_bar: re-enable after clear
     """
 
     def __init__(
         self,
         actions: ActionBundle,
+        style_manager: StyleManager,
         toolbar: ToolbarController,
         chat_area: ChatAreaController,
-        status_bar: StatusBarController,
         input_bar: InputBarController,
+        status_bar: StatusBarController,
     ) -> None:
         self._actions = actions
+        self._style_manager = style_manager
         self._toolbar = toolbar
         self._chat_area = chat_area
-        self._status_bar = status_bar
         self._input_bar = input_bar
+        self._status_bar = status_bar
 
-    def handle_clear(self) -> None:
+    def on_clear_clicked(self) -> None:
         """Triggered by ToolbarComponent.clear_clicked signal."""
         self._actions.clear_chat.execute()
-
         self._chat_area.clear()
         self._status_bar.hide()
         self._input_bar.set_enabled(True)
         self._toolbar.set_clear_enabled(False)
 
-    def handle_mode_changed(self, mode: str) -> None:
-        """Triggered by ToolbarComponent.mode_changed signal. Level 1: Simple only."""
-        # mode is a primitive string — no unpacking needed
-        # StateController is updated via direct binding in MainController (see doc_04 rules)
+    def on_theme_changed(self, filename: str) -> None:
+        """Triggered by ToolbarComponent.mode_changed signal. Level 1: no-op."""
+        pass
+
+# desktop/event_handlers/toolbar_event_handler.py

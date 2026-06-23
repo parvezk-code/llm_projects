@@ -11,4 +11,6 @@ class AppState:
     Plain fields only — no methods, no logic.
     """
     messages: list[ChatMessage] = field(default_factory=list)
-    mode: str = "Simple"
+    is_processing: bool = False
+
+# desktop/state/app_state.py

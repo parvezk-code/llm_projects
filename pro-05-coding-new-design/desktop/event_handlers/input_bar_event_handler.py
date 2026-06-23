@@ -1,58 +1,46 @@
 # desktop/event_handlers/input_bar_event_handler.py
 
 from desktop.action_bundles.action_bundle import ActionBundle
-from ui.controllers.input_bar_controller import InputBarController
 from ui.controllers.chat_area_controller import ChatAreaController
-from ui.controllers.status_bar_controller import StatusBarController
-from ui.controllers.toolbar_controller import ToolbarController
+from ui.controllers.input_bar_controller import InputBarController
 
 
 class InputBarEventHandler:
     """
-    Handles events emitted by the InputBarComponent.
+    Handles events emitted by InputBarComponent.
     Organised by emitting component — one handler, one component.
 
-    Injected controllers (never imported UI layer directly):
-      - input_bar: read text, clear, enable/disable
-      - chat_area: add/remove bubbles
-      - status_bar: show/hide errors
-      - toolbar: enable/disable during busy state
+    Constructor: (actions, chat_area, input_bar) — only what this handler needs.
     """
 
     def __init__(
         self,
         actions: ActionBundle,
-        input_bar: InputBarController,
         chat_area: ChatAreaController,
-        status_bar: StatusBarController,
-        toolbar: ToolbarController,
+        input_bar: InputBarController,
     ) -> None:
         self._actions = actions
-        self._input_bar = input_bar
         self._chat_area = chat_area
-        self._status_bar = status_bar
-        self._toolbar = toolbar
+        self._input_bar = input_bar
 
-    def handle_send(self) -> None:
+    def on_send_clicked(self) -> None:
         """Triggered by InputBarComponent.send_triggered signal."""
-        user_input = self._input_bar.get_text()
-        if not user_input:
+        user_text = self._input_bar.get_text()
+        if not user_text:
             return
 
-        self._input_bar.clear_text()
-        self._status_bar.hide()
-        self._set_busy(True)
-        self._chat_area.add_bubble(role="user", content=user_input)
+        self._input_bar.set_enabled(False)
 
         try:
-            answer = self._actions.send_message.execute(user_input)
-            self._chat_area.add_bubble(role="assistant", content=answer)
+            user_msg, assistant_msg = self._actions.send_message.execute(user_text)
+            # Unpack domain models to primitives — UI never sees ChatMessage
+            self._chat_area.add_bubble(role=user_msg.role, content=user_msg.content)
+            self._chat_area.add_bubble(role=assistant_msg.role, content=assistant_msg.content)
+            self._input_bar.clear_text()
         except Exception as e:
-            self._chat_area.clear_last_bubble()
-            self._status_bar.show_error(str(e))
+            # LLM failures → inline error bubble in the chat area
+            self._chat_area.add_bubble(role="assistant", content=f"Error: {e}")
         finally:
-            self._set_busy(False)
+            self._input_bar.set_enabled(True)
 
-    def _set_busy(self, busy: bool) -> None:
-        self._input_bar.set_enabled(not busy)
-        self._toolbar.set_enabled(not busy)
+# desktop/event_handlers/input_bar_event_handler.py

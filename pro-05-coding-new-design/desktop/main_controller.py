@@ -9,57 +9,82 @@ from desktop.action_bundles.action_bundle import ActionBundle
 from desktop.event_handlers.input_bar_event_handler import InputBarEventHandler
 from desktop.event_handlers.toolbar_event_handler import ToolbarEventHandler
 from ui.screen_manager import ScreenManager
+from ui.style_manager import StyleManager
 
 
 class MainController:
     """
-    Single composition root. Creates and wires every object.
-    Receives a ready-made GatewayBundle from the launcher — never builds gateways.
-    Holds no business logic.
+    Application composition root.
 
-    Startup sequence:
-      create_state → create_actions → create_ui → create_event_handlers
-      → wire_events → show
+    Receives ready-made Gateways from the launcher — never builds them or
+    decides local vs remote mode. Creates state, actions, the UI, the style
+    manager, and event handlers; wires every component signal to a handler
+    method; applies the default theme. Contains no business logic and never
+    manipulates widgets directly.
     """
 
-    def __init__(self, gateways: GatewayBundle) -> None:
-        # --- state ---
-        state = StateController(AppState())
+    DEFAULT_THEME = "ocean_blue.qss"
 
-        # --- actions ---
-        actions = ActionBundle(
-            send_message=SendMessageAction(state=state, gateways=gateways),
-            clear_chat=ClearChatAction(state=state, gateways=gateways),
+    def __init__(self, gateways: GatewayBundle) -> None:
+        self._gateways = gateways
+
+    # --- public entry point ---
+
+    def start(self) -> None:
+        self._create_state()
+        self._create_actions()
+        self._create_ui()
+        self._create_style()
+        self._create_event_handlers()
+        self._wire_events()
+        self._apply_default_theme()
+        self._show()
+
+    # --- startup steps (one task each) ---
+
+    def _create_state(self) -> None:
+        self._state = AppState()
+        self._state_controller = StateController(self._state)
+
+    def _create_actions(self) -> None:
+        self._actions = ActionBundle(
+            send_message=SendMessageAction(self._state_controller, self._gateways),
+            clear_chat=ClearChatAction(self._state_controller, self._gateways),
         )
 
-        # --- ui ---
-        self._screen = ScreenManager()
-        ui = self._screen.build()
+    def _create_ui(self) -> None:
+        self._screen_manager = ScreenManager()
+        self._ui = self._screen_manager.build()
 
-        # --- event handlers (stored as instance attrs to prevent garbage collection) ---
+    def _create_style(self) -> None:
+        self._style_manager = StyleManager()
+
+    def _create_event_handlers(self) -> None:
+        ui = self._ui
         self._input_bar_handler = InputBarEventHandler(
-            actions=actions,
-            input_bar=ui.input_bar,
-            chat_area=ui.chat_area,
-            status_bar=ui.status_bar,
-            toolbar=ui.toolbar,
+            self._actions,
+            ui.chat_area,
+            ui.input_bar,
         )
         self._toolbar_handler = ToolbarEventHandler(
-            actions=actions,
-            toolbar=ui.toolbar,
-            chat_area=ui.chat_area,
-            status_bar=ui.status_bar,
-            input_bar=ui.input_bar,
+            self._actions,
+            self._style_manager,
+            ui.toolbar,
+            ui.chat_area,
+            ui.input_bar,
+            ui.status_bar,
         )
 
-        # --- wire signals to handler methods ---
-        self._wire_events(ui, self._input_bar_handler, self._toolbar_handler, state)
+    def _wire_events(self) -> None:
+        ui = self._ui
+        ui.input_bar.bind_send_triggered(self._input_bar_handler.on_send_clicked)
+        ui.toolbar.bind_clear_clicked(self._toolbar_handler.on_clear_clicked)
+        ui.toolbar.bind_mode_changed(self._toolbar_handler.on_theme_changed)
 
-    def _wire_events(self, ui, input_bar_handler, toolbar_handler, state) -> None:
-        ui.input_bar.bind_send_triggered(input_bar_handler.handle_send)
-        ui.toolbar.bind_clear_clicked(toolbar_handler.handle_clear)
-        ui.toolbar.bind_mode_changed(toolbar_handler.handle_mode_changed)
-        ui.toolbar.bind_mode_changed(state.set_mode)
+    def _apply_default_theme(self) -> None:
+        self._style_manager.apply_theme(self.DEFAULT_THEME)
 
-    def show(self) -> None:
-        self._screen.show()
+    def _show(self) -> None:
+        self._screen_manager.show()
+
+# desktop/main_controller.py

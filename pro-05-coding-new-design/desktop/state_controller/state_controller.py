@@ -14,29 +14,31 @@ class StateController:
     def __init__(self, state: AppState) -> None:
         self._state = state
 
-    # --- messages ---
+    # --- chat ---
 
-    def add_message(self, role: str, content: str) -> None:
-        self._state.messages.append(ChatMessage(role=role, content=content))
+    def add_chat_message(self, message: ChatMessage) -> None:
+        self._state.messages.append(message)
 
-    def get_messages(self) -> list[ChatMessage]:
-        return list(self._state.messages)
+    def get_chat_messages(self) -> list[ChatMessage]:
+        return list(self._state.messages)   # copy — callers cannot mutate internal state
 
-    def pop_last_message(self) -> ChatMessage | None:
+    def remove_last_chat_message(self) -> ChatMessage | None:
         if self._state.messages:
             return self._state.messages.pop()
         return None
 
-    def clear_messages(self) -> None:
+    def is_chat_empty(self) -> bool:
+        return len(self._state.messages) == 0
+
+    def clear_chat(self) -> None:
         self._state.messages.clear()
 
-    def has_messages(self) -> bool:
-        return len(self._state.messages) > 0
+    # --- processing ---
 
-    # --- mode ---
+    def set_processing(self, value: bool) -> None:
+        self._state.is_processing = value
 
-    def set_mode(self, mode: str) -> None:
-        self._state.mode = mode
+    def is_processing(self) -> bool:
+        return self._state.is_processing
 
-    def get_mode(self) -> str:
-        return self._state.mode
+# desktop/state_controller/state_controller.py
