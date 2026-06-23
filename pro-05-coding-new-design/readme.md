@@ -63,7 +63,9 @@ OPENAI_MODEL=gpt-4o-mini
 ## 5. Run the App
 
 ```bash
-python main.py
+
+python -m desktop_local.main
+
 ```
 
 ---
