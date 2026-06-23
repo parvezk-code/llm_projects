@@ -10,6 +10,7 @@ from desktop.event_handlers.input_bar_event_handler import InputBarEventHandler
 from desktop.event_handlers.toolbar_event_handler import ToolbarEventHandler
 from ui.screen_manager import ScreenManager
 
+
 class MainController:
     """
     Single composition root. Creates and wires every object.
@@ -35,15 +36,15 @@ class MainController:
         self._screen = ScreenManager()
         ui = self._screen.build()
 
-        # --- event handlers ---
-        input_bar_handler = InputBarEventHandler(
+        # --- event handlers (stored as instance attrs to prevent garbage collection) ---
+        self._input_bar_handler = InputBarEventHandler(
             actions=actions,
             input_bar=ui.input_bar,
             chat_area=ui.chat_area,
             status_bar=ui.status_bar,
             toolbar=ui.toolbar,
         )
-        toolbar_handler = ToolbarEventHandler(
+        self._toolbar_handler = ToolbarEventHandler(
             actions=actions,
             toolbar=ui.toolbar,
             chat_area=ui.chat_area,
@@ -52,7 +53,7 @@ class MainController:
         )
 
         # --- wire signals to handler methods ---
-        self._wire_events(ui, input_bar_handler, toolbar_handler, state)
+        self._wire_events(ui, self._input_bar_handler, self._toolbar_handler, state)
 
     def _wire_events(self, ui, input_bar_handler, toolbar_handler, state) -> None:
         ui.input_bar.bind_send_triggered(input_bar_handler.handle_send)

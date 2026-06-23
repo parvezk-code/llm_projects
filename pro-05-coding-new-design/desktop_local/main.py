@@ -1,7 +1,6 @@
 # desktop_local/main.py
 
 import sys
-from pathlib import Path
 from PyQt6.QtWidgets import QApplication
 
 from utils.logger import configure_logging
@@ -10,14 +9,9 @@ from core.services.chat.plain_chat_service import PlainChatService
 from desktop.gateways.chat_gateway import ChatGateway
 from desktop.gateways.gateway_bundle import GatewayBundle
 from desktop.main_controller import MainController
+from ui.style_manager import StyleManager
 
 from langchain_openai import ChatOpenAI
-
-
-def load_stylesheet(app: QApplication) -> None:
-    qss_path = Path(__file__).resolve().parent.parent / "styles" / "main.qss"
-    if qss_path.exists():
-        app.setStyleSheet(qss_path.read_text())
 
 
 def main() -> None:
@@ -29,7 +23,9 @@ def main() -> None:
     # --- Qt app ---
     app = QApplication(sys.argv)
     app.setApplicationName(config.app.app_name)
-    load_stylesheet(app)
+
+    # --- apply theme ---
+    StyleManager().apply_theme("ocean_blue.qss")
 
     # --- build core services ---
     llm = ChatOpenAI(
