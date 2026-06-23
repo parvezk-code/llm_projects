@@ -1,0 +1,11 @@
+.env
+.venv/
+.env.local
+__pycache__/
+*.pyc
+.DS_Store
+zz_temp/
+.codex
+.codex_memory/
+
+zz_test/test_doc_fail.pdf
