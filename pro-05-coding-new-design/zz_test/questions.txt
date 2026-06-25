@@ -1,0 +1,34 @@
+
+
+
+---------------------------------------------------
+
+RAG Mode
+
+
+Then test with questions like:
+
+
+What does the greet function do?
+
+
+How is division handled in calculator.py?
+
+
+List all functions in this project. only names no explanation
+
+---------------------------------------------------
+
+Agent Mode
+
+
+Write a Python function to calculate fibonacci numbers and run it for n=10
+
+Write and run a Python script that generates the first 20 prime numbers
+
+Write a bubble sort function and run it on this list: [5, 2, 8, 1, 9, 3]
+
+
+
+
+

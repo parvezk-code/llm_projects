@@ -14,6 +14,7 @@ class ToolbarController(QObject):
     def __init__(self, component: ToolbarComponent) -> None:
         super().__init__()
         self._component = component
+        self._project_loaded = False
 
     # --- bind methods ---
 
@@ -40,9 +41,15 @@ class ToolbarController(QObject):
 
     def set_project_name(self, name: str) -> None:
         self._component.set_project_name(name)
+        self._project_loaded = True
 
     def clear_project_label(self) -> None:
         self._component.clear_project_name()
+        self._project_loaded = False
+
+    def has_project_loaded(self) -> bool:
+        """UI-level flag: whether a project label is currently shown."""
+        return self._project_loaded
 
     def get_mode(self) -> str:
         return self._component.get_mode()

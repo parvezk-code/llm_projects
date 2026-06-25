@@ -1,4 +1,4 @@
-# desktop/actions/chat/send_message_action.py
+# desktop/actions/chat/send_plain_message_action.py
 
 import logging
 from core.models.chat_message import ChatMessage, Role
@@ -8,18 +8,16 @@ from desktop.gateways.gateway_bundle import GatewayBundle
 logger = logging.getLogger(__name__)
 
 
-class SendMessageAction:
+class SendPlainMessageAction:
     """
-    Workflow: send a user message and receive an AI response.
+    Workflow: plain (non-RAG) chat — send a user message, get an AI reply.
+    Single-purpose: no mode branching here (the handler routes to this action).
 
-    1. Set is_processing = True (reset in finally).
-    2. Read history from state and build the provider message list here
-       (system prompt + history as dicts + new user turn). ChatMessage→dict
-       conversion belongs in the Action, not in the model or gateway.
-    3. Call gateway.get_reply(messages).
-    4. Commit BOTH the user and assistant ChatMessages to state only after
-       a successful reply (atomic — a failed call leaves state unchanged).
-    5. Return (user_message, assistant_message) to the Event Handler.
+    1. Set is_processing (reset in finally).
+    2. Read history, shape provider messages (system + history + user turn).
+    3. Call chat gateway (plain path).
+    4. Commit both messages atomically only on success.
+    5. Return (user_message, assistant_message).
     """
 
     SYSTEM_PROMPT = (
@@ -37,21 +35,20 @@ class SendMessageAction:
             history = self._state.get_chat_messages()
             messages = self._build_messages(history, user_text)
 
-            logger.debug("SendMessageAction: input=%r", user_text)
+            logger.debug("SendPlainMessageAction: input=%r", user_text)
             reply_text = self._gateways.chat.get_reply(messages)
-            logger.debug("SendMessageAction: reply length=%d", len(reply_text))
+            logger.debug("SendPlainMessageAction: reply length=%d", len(reply_text))
 
             user_msg = ChatMessage.user(user_text)
             assistant_msg = ChatMessage.assistant(reply_text)
 
-            # Commit both atomically — only reached if get_reply succeeded
             self._state.add_chat_message(user_msg)
             self._state.add_chat_message(assistant_msg)
 
             return user_msg, assistant_msg
 
         except Exception:
-            logger.exception("SendMessageAction: failed — state unchanged")
+            logger.exception("SendPlainMessageAction: failed — state unchanged")
             raise
         finally:
             self._state.set_processing(False)
@@ -63,4 +60,4 @@ class SendMessageAction:
         messages.append({"role": Role.USER, "content": user_text})
         return messages
 
-# desktop/actions/chat/send_message_action.py
+# desktop/actions/chat/send_plain_message_action.py
