@@ -5,6 +5,7 @@ from desktop.state.app_state import AppState
 from desktop.state_controller.state_controller import StateController
 from desktop.actions.chat.send_plain_message_action import SendPlainMessageAction
 from desktop.actions.chat.send_rag_message_action import SendRagMessageAction
+from desktop.actions.chat.send_agent_message_action import SendAgentMessageAction
 from desktop.actions.chat.clear_chat_action import ClearChatAction
 from desktop.actions.project.load_project_action import LoadProjectAction
 from desktop.action_bundles.action_bundle import ActionBundle
@@ -33,7 +34,7 @@ class MainController:
     """
 
     DEFAULT_THEME = "ocean_blue.qss"
-    UNLOCK_LEVEL = 2
+    UNLOCK_LEVEL = 3
 
     def __init__(self, gateways: GatewayBundle) -> None:
         self._gateways = gateways
@@ -63,6 +64,7 @@ class MainController:
         self._actions = ActionBundle(
             send_plain=SendPlainMessageAction(sc, gw),
             send_rag=SendRagMessageAction(sc, gw),
+            send_agent=SendAgentMessageAction(sc, gw),
             clear_chat=ClearChatAction(sc, gw),
             load_project=LoadProjectAction(sc, gw),
         )

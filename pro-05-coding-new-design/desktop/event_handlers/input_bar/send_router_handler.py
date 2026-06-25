@@ -44,6 +44,7 @@ class SendRouterHandler:
         handler = {
             "Simple": self.on_send_plain,
             "RAG": self.on_send_rag,
+            "Agent": self.on_send_agent,
         }.get(mode, self.on_send_plain)   # default keeps Simple safe
         handler()
 
@@ -66,6 +67,18 @@ class SendRouterHandler:
             return
 
         self._start_send(lambda: self._actions.send_rag.execute(user_text))
+
+    def on_send_agent(self) -> None:
+        user_text = self._input_bar.get_text()
+        if not user_text:
+            return
+
+        # Guard: Agent selected but no project loaded yet (handler concern).
+        if not self._toolbar.has_project_loaded():
+            self._status_bar.show_error("Load a project first to use Agent mode.")
+            return
+
+        self._start_send(lambda: self._actions.send_agent.execute(user_text))
 
     # --- threaded execution ---
 
