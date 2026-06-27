@@ -58,4 +58,14 @@ class ToolbarController(QObject):
         """Unlock UI controls for the given level (called by MainController at startup)."""
         self._component.unlock_level(level)
 
+    # --- event methods (one per event; compose the operations above) ---
+
+    def reset_on_clear_chat(self) -> None:
+        self.set_clear_enabled(False)
+        self.clear_project_label()
+
+    def reset_on_project_loaded(self, name: str) -> None:
+        self.set_project_name(name)
+        self.set_clear_enabled(True)
+
 # ui/controllers/toolbar_controller.py

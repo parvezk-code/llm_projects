@@ -31,4 +31,12 @@ class InputBarController(QObject):
     def set_enabled(self, enabled: bool) -> None:
         self._component.set_enabled(enabled)
 
+    # --- event methods (one per event) ---
+
+    def reset_on_clear_chat(self) -> None:
+        self.set_enabled(True)
+
+    def reset_on_send_cleared(self) -> None:
+        self.clear_text()
+
 # ui/controllers/input_bar_controller.py

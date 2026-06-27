@@ -95,14 +95,16 @@ class SendRouterHandler:
     def _on_result(self, result) -> None:
         # result is (user_message, assistant_message)
         user_msg, assistant_msg = result
-        self._chat_area.add_bubble(role=user_msg.role, content=user_msg.content)
-        self._chat_area.add_bubble(role=assistant_msg.role, content=assistant_msg.content)
-        self._input_bar.clear_text()
+        self._chat_area.reset_on_send_result(
+            user_msg.role, user_msg.content,
+            assistant_msg.role, assistant_msg.content,
+        )
+        self._input_bar.reset_on_send_cleared()
         self._set_busy(False)
 
     def _on_error(self, error: Exception) -> None:
         # LLM / chat failures → inline error bubble in the chat area
-        self._chat_area.add_bubble(role="assistant", content=f"Error: {error}")
+        self._chat_area.reset_on_send_error(str(error))
         self._set_busy(False)
 
     def _set_busy(self, busy: bool) -> None:

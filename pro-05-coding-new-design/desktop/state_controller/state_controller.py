@@ -36,6 +36,25 @@ class StateController:
     def clear_chat(self) -> None:
         self._state.messages.clear()
 
+    # --- coarse event operations (one per event; compose the fine-grained ones) ---
+
+    def add_message_on_send(self, user_msg: ChatMessage, assistant_msg: ChatMessage) -> None:
+        """The send commit: append both turns together (atomic — only on success)."""
+        self._state.messages.append(user_msg)
+        self._state.messages.append(assistant_msg)
+
+    def reset_on_clear_chat(self) -> None:
+        """The clear event's state slice: drop chat, project, and index together."""
+        self.clear_chat()
+        self.clear_project()
+        self.clear_index()
+
+    def reset_on_project_loaded(self, path: str, index: ProjectIndex) -> None:
+        """The load event's state slice: store project + index, start a fresh chat."""
+        self.set_project_path(path)
+        self.set_project_index(index)
+        self.clear_chat()
+
     # --- processing ---
 
     def set_processing(self, value: bool) -> None:

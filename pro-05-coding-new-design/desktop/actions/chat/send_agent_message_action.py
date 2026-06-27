@@ -46,8 +46,7 @@ class SendAgentMessageAction:
             user_msg = ChatMessage.user(user_text)
             assistant_msg = ChatMessage.assistant(reply_text)
 
-            self._state.add_chat_message(user_msg)
-            self._state.add_chat_message(assistant_msg)
+            self._state.add_message_on_send(user_msg, assistant_msg)
 
             return user_msg, assistant_msg
 

@@ -50,9 +50,8 @@ class FolderSelectedHandler:
     def _on_result(self, index) -> None:
         # Unpack domain model (ProjectIndex) to primitives before touching the UI
         self._set_busy(False)
-        self._toolbar.set_project_name(os.path.basename(index.project_path))
-        self._toolbar.set_clear_enabled(True)
-        self._chat_area.clear()
+        self._toolbar.reset_on_project_loaded(os.path.basename(index.project_path))
+        self._chat_area.reset_on_project_loaded()
 
     def _on_error(self, error: Exception) -> None:
         # File / load failures → dismissible status-bar banner

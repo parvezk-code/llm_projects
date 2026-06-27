@@ -30,10 +30,9 @@ class ClearChatHandler:
 
     def on_clear_clicked(self) -> None:
         self._actions.clear_chat.execute()
-        self._chat_area.clear()
-        self._status_bar.hide()
-        self._input_bar.set_enabled(True)
-        self._toolbar.set_clear_enabled(False)
-        self._toolbar.clear_project_label()
+        self._chat_area.reset_on_clear_chat()
+        self._status_bar.reset_on_clear_chat()
+        self._input_bar.reset_on_clear_chat()
+        self._toolbar.reset_on_clear_chat()
 
 # desktop/event_handlers/toolbar/clear_chat_handler.py

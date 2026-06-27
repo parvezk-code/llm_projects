@@ -28,4 +28,9 @@ class StatusBarController:
         self._component.hide()
         self._component.clear_message()
 
+    # --- event methods (one per event) ---
+
+    def reset_on_clear_chat(self) -> None:
+        self.hide()
+
 # ui/controllers/status_bar_controller.py

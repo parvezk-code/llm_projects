@@ -16,8 +16,6 @@ class ClearChatAction:
         # gateways injected for interface consistency; not used here
 
     def execute(self) -> None:
-        self._state.clear_chat()
-        self._state.clear_project()
-        self._state.clear_index()
+        self._state.reset_on_clear_chat()
 
 # desktop/actions/chat/clear_chat_action.py

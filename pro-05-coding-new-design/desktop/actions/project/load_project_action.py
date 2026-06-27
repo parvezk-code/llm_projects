@@ -31,9 +31,7 @@ class LoadProjectAction:
             logger.debug("LoadProjectAction: indexed %d chunks", index.chunk_count)
 
             # Commit only after a successful build
-            self._state.set_project_path(project_path)
-            self._state.set_project_index(index)
-            self._state.clear_chat()
+            self._state.reset_on_project_loaded(project_path, index)
 
             return index
 

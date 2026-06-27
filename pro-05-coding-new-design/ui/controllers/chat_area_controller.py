@@ -40,6 +40,22 @@ class ChatAreaController:
                 item.widget().deleteLater()
         self._component.show_placeholder()
 
+    # --- event methods (one per event; compose the operations above) ---
+
+    def reset_on_clear_chat(self) -> None:
+        self.clear()
+
+    def reset_on_project_loaded(self) -> None:
+        self.clear()
+
+    def reset_on_send_result(self, user_role: str, user_content: str,
+                             assistant_role: str, assistant_content: str) -> None:
+        self.add_bubble(role=user_role, content=user_content)
+        self.add_bubble(role=assistant_role, content=assistant_content)
+
+    def reset_on_send_error(self, message: str) -> None:
+        self.add_bubble(role="assistant", content=f"Error: {message}")
+
     def _scroll_to_bottom(self) -> None:
         bar = self._component.get_scroll_bar()
         bar.setValue(bar.maximum())
