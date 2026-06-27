@@ -28,7 +28,7 @@ data — the dumb equivalent of a UI component at the state layer.
    solely for field type annotations. It never imports Core logic, Gateways,
    Actions, or UI.
 
-5. **No defaults that hide intent.** Mutable defaults use `field(default_factory=…)`.
+5. **No defaults that hide intent.** Mutable defaults use `field(default_factory=...)`.
    Optional-until-set fields default to `None` so "not yet set" is explicit and
    readable.
 
@@ -62,8 +62,9 @@ layer's equivalent of a component controller: the single, controlled vocabulary 
    method that performs all of that event's state changes**, rather than making the
    action issue several fine-grained writes.
 
-   - Name the method for the **event**, prefixed by intent:
-     `reset_on_clear_chat()`, `apply_on_project_loaded(path, index)`, etc.
+   - Name the method for the **event**, prefixed by intent. The intent prefix
+     varies with what the event does to the data — e.g. `reset_on_clear_chat()`,
+     `reset_on_project_loaded(path, index)`, `add_message_on_send(user, assistant)`.
    - The method bundles every field write that event needs into one cohesive call.
    - The action then calls **one StateController method per event** — never a
      sequence of low-level setters.
@@ -73,9 +74,9 @@ layer's equivalent of a component controller: the single, controlled vocabulary 
    ```python
    # StateController
    def reset_on_clear_chat(self) -> None:
-       self._state.messages.clear()
-       self._state.project_path = None
-       self._state.project_index = None
+       self.clear_chat()
+       self.clear_project()
+       self.clear_index()
    ```
 
    ```python
@@ -84,15 +85,23 @@ layer's equivalent of a component controller: the single, controlled vocabulary 
        self._state.reset_on_clear_chat()
    ```
 
-5. **Atomic multi-write commits stay inside one method too.** Where an event commits
-   several writes that must land together (e.g. appending both the user and
-   assistant messages after a successful reply), expose them as one method or call
-   them as one uninterrupted block inside the action's success path, so a failure
-   never leaves a partial commit.
+5. **Atomic multi-write commits are one event-shaped method too.** Where an event
+   commits several writes that must land together — e.g. appending both the user and
+   assistant messages after a successful reply — expose them as a single method
+   (`add_message_on_send(user_msg, assistant_msg)`) called inside the action's
+   success path, so a failure never leaves a partial commit.
+
+   ```python
+   # StateController
+   def add_message_on_send(self, user_msg: ChatMessage, assistant_msg: ChatMessage) -> None:
+       self._state.messages.append(user_msg)
+       self._state.messages.append(assistant_msg)
+   ```
 
 6. **Fine-grained accessors may still exist** for genuinely standalone reads/writes
    (`get_chat_messages()`, `get_project_path()`, `set_processing(bool)`,
-   `is_processing()`). The event-shaped method rule applies when an **event** drives
+   `is_processing()`). They also serve as the building blocks the event-shaped
+   methods compose. The event-shaped method rule applies when an **event** drives
    **multiple** field writes; it does not force single-write events into wrappers.
 
 7. **Group by event, not by field.** Prefer one method that captures "all the state

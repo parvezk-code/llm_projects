@@ -35,8 +35,12 @@ and reaches external systems (via Gateways), and returns a result to the handler
 
 6. **Call one event-shaped StateController method, not many setters.** When a
    workflow's state change spans several fields, the action calls a single
-   intent-named StateController method (`reset_on_clear_chat()`), mirroring the
-   handler/controller rule. The action decides *when*; the StateController owns *how*.
+   intent-named StateController method (`reset_on_clear_chat()`,
+   `reset_on_project_loaded(path, index)`, `add_message_on_send(user, assistant)`),
+   mirroring the handler/controller rule. The action decides *when*; the
+   StateController owns *how*. This holds even when the writes must be atomic — the
+   send commit appends both turns through one `add_message_on_send` call rather than
+   two `add_chat_message` calls, making the atomicity explicit.
 
 7. **Atomic commit on success only.** Set the processing flag, do the external call,
    and commit state **only after** the call succeeds — so a failure leaves state
@@ -50,8 +54,7 @@ and reaches external systems (via Gateways), and returns a result to the handler
            reply = self._gateways.chat.get_reply(messages)        # external call first
            user_msg = ChatMessage.user(user_text)
            assistant_msg = ChatMessage.assistant(reply)
-           self._state.add_chat_message(user_msg)                 # commit only on success
-           self._state.add_chat_message(assistant_msg)
+           self._state.add_message_on_send(user_msg, assistant_msg)  # commit both, only on success
            return user_msg, assistant_msg
        finally:
            self._state.set_processing(False)

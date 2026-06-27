@@ -73,8 +73,10 @@ talks to another controller.
    exposes **one method that performs all of that component's work for that event**,
    rather than making the handler issue several fine-grained calls.
 
-   - Name the method for the **event**, prefixed by intent:
-     `reset_on_clear_chat()`, `apply_on_project_loaded(name)`, etc.
+   - Name the method for the **event**, prefixed with `reset_on_`:
+     `reset_on_clear_chat()`, `reset_on_project_loaded(name)`,
+     `reset_on_send_result(...)`, etc. One prefix is used for every event method
+     so the convention is uniform and instantly recognisable.
    - The method bundles every widget op that component needs for that event into
      one call.
    - The handler then calls **one method per controller per event** — never a
@@ -101,20 +103,75 @@ talks to another controller.
        self._toolbar.reset_on_clear_chat()
    ```
 
-6. **Same event-method name across controllers.** When one event fans out to
-   several controllers, they all use the **same method name** (`reset_on_clear_chat`)
-   for their slice. This makes the pattern obvious at the call site and signals
-   "these calls all belong to one event."
+   Example — the project-loaded event (success) touches two components:
+
+   ```python
+   def _on_result(self, index):
+       self._set_busy(False)
+       self._toolbar.reset_on_project_loaded(os.path.basename(index.project_path))
+       self._chat_area.reset_on_project_loaded()
+   ```
+
+   Example — the send event (result / error) touches the chat area and input bar:
+
+   ```python
+   def _on_result(self, result):
+       user_msg, assistant_msg = result
+       self._chat_area.reset_on_send_result(
+           user_msg.role, user_msg.content,
+           assistant_msg.role, assistant_msg.content,
+       )
+       self._input_bar.reset_on_send_cleared()
+       self._set_busy(False)
+
+   def _on_error(self, error):
+       self._chat_area.reset_on_send_error(str(error))
+       self._set_busy(False)
+   ```
+
+6. **Event-method names: same name on a uniform fan-out, distinct names when the
+   slices differ.**
+   - When one event fans out to several controllers that each perform the *same
+     kind* of reset, they all use the **same method name** (e.g. every controller
+     in the clear event exposes `reset_on_clear_chat()`). This makes the pattern
+     obvious at the call site and signals "these calls all belong to one event."
+   - When an event drives genuinely *different* work on each controller, each
+     keeps its own descriptive `reset_on_<event>_<slice>` name. The send event is
+     the example: `chat_area.reset_on_send_result(...)` adds the bubbles while
+     `input_bar.reset_on_send_cleared()` clears the box — different slices, so
+     different names, still under the same `reset_on_` prefix.
 
 7. **Fine-grained setters may still exist** for ops that genuinely stand alone
    (e.g. `set_enabled(bool)` during busy toggling, `get_text()`). The event-shaped
    method rule applies when an **event** drives **multiple** ops on one component;
    it does not force trivially single-op events into wrapper methods unless they
-   are part of a fan-out group.
+   are part of a fan-out group. (A single event that fans out to several
+   controllers — like clear — does give even single-op controllers an
+   event-method, so the handler reads uniformly.)
 
 8. **Controllers expose, never orchestrate.** A controller groups *its own*
    component's work for an event. It never coordinates across components — that
    fan-out (calling each controller's event method) is the handler's job.
+
+---
+
+## Part C — The Same Principle in the State Layer
+
+The one-method-per-event principle is not UI-only. The **StateController** applies
+it too: when an event needs several state writes, the controller exposes **one
+coarse method** that performs them together, and the Action calls just that method.
+
+- `reset_on_clear_chat()` — drops chat, project, and index together.
+- `reset_on_project_loaded(path, index)` — stores project + index and starts a
+  fresh chat.
+- `add_message_on_send(user_msg, assistant_msg)` — appends both turns together;
+  this is the atomic send-commit point (reached only after a successful reply).
+
+State-method names describe the **state change for the event**. The send commit is
+named `add_message_on_send` (what it does to state) rather than after any UI
+surface. Fine-grained writes (`clear_chat`, `set_project_path`, `add_chat_message`,
+`set_processing`) still exist as building blocks the coarse methods compose, and
+are used directly when an event needs only a single write.
 
 ---
 
@@ -129,3 +186,5 @@ talks to another controller.
   StateController (`reset_on_clear_chat()`), component controllers
   (`reset_on_clear_chat()` each), and the handler that calls them — so each layer
   has exactly one place that knows its own slice of an event.
+
+# ui_component_controller_rules.md
