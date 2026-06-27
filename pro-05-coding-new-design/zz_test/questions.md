@@ -7,13 +7,12 @@
 
 **RAG Mode**
 - What does the greet function do?
-- How is division handled in calculator.py?
 - List all function names in this project. only name no explanation
 ---
 
 **Agent Mode**
-- Write and run a function that adds two numbers and save it.
-- Write and run a script that prints first 5 even numbers.
+- List all methods in calculator.py
+- Add a new method to calculator.py of you choice. also tell which method you added.
 ---
 
 **Graph Mode**
