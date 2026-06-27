@@ -65,13 +65,16 @@ component.
 5. **One method per event (the main rule):** if an event needs several changes on
    one component, put them all in **one** method named after the event. Example:
    `reset_on_clear_chat()` clears the messages and shows the empty placeholder.
-6. When one event affects several components, give each controller a method with
+6. When one event touches several controllers, give each controller the same event-named 
+   method even if that controller's slice is just one call. Consistency of naming matters 
+   more than avoiding trivial wrappers — it lets you follow one event name across the whole app
+7. When one event affects several components, give each controller a method with
    the **same name** for its own part. Example: every controller has its own
    `reset_on_clear_chat()`.
-7. You may still keep small single-purpose methods for actions that stand alone
+8. You may still keep small single-purpose methods for actions that stand alone
    (like `set_enabled(true)` or `get_text()`). The one-method rule is only for when
    an event needs **several** changes at once.
-8. A controller only handles **its own** component. It never calls another
+9. A controller only handles **its own** component. It never calls another
    controller. Combining many controllers for one event is the handler's job.
 
 ---
