@@ -14,10 +14,10 @@ state-controller and component-controller rules.
 
    ```
    desktop/event_handlers/
-   ├── input_bar/   send_router_handler.py
-   ├── toolbar/     clear_chat_handler.py, load_project_handler.py
+   ├── input_bar/     send_router_handler.py
+   ├── toolbar/       clear_chat_handler.py, load_project_handler.py
    ├── folder_picker/ folder_selected_handler.py
-   └── status_bar/  dismiss_handler.py
+   └── status_bar/    dismiss_handler.py
    ```
 
 2. **One handler class per event** — with one exception: the **send router**, which
@@ -92,7 +92,7 @@ controller and the component controllers.
    apply the matching UI reset/update via one event-shaped method on each affected
    controller.
 
-   Example — the clear-chat event:
+   **Example — the clear-chat event (synchronous):**
 
    ```python
    def on_clear_clicked(self) -> None:
@@ -106,27 +106,72 @@ controller and the component controllers.
    The handler reads as a flat list of "reset every layer for this event" — one call
    per layer-object, no widget or field detail visible.
 
-4. **Same event-method name everywhere.** The action, the StateController method, and
-   each component controller method for one event share the same intent-named verb
-   (`reset_on_clear_chat`). This makes the whole event traceable by a single name
-   across all layers.
-
-5. **Threaded events follow the same shape, split across callbacks.** When the work
-   is threaded, the "apply result to UI" half moves into `on_result` / `on_error`,
-   but it is still **one event-shaped method per controller**, not fine-grained
-   setters:
+   **Example — the send event (threaded, result + error split):**
 
    ```python
-   def on_result(self, index) -> None:
-       self._toolbar.apply_on_project_loaded(os.path.basename(index.project_path))
-       self._input_bar.reset_on_project_loaded()
+   def on_send_plain(self) -> None:
+       user_text = self._input_bar.get_text()
+       if not user_text:
+           return
+       self._status_bar.hide()
+       self._set_busy(True)                       # busy gate (see C.6)
+       self._worker = Worker(
+           method=lambda: self._actions.send_plain.execute(user_text),
+           on_result=self._on_result,
+           on_error=self._on_error,
+       )
+       self._worker.start()
+
+   def _on_result(self, result) -> None:
+       user_msg, assistant_msg = result           # unpack domain model to primitives
+       self._chat_area.reset_on_send_result(
+           user_msg.role, user_msg.content,
+           assistant_msg.role, assistant_msg.content,
+       )
+       self._input_bar.reset_on_send_cleared()
+       self._set_busy(False)
+
+   def _on_error(self, error: Exception) -> None:
+       self._chat_area.reset_on_send_error(str(error))
+       self._set_busy(False)
+   ```
+
+   The "apply result to UI" half moves into the callbacks, but it is still
+   **one event-shaped method per controller** — not fine-grained setters.
+
+4. **The `_on_<event>` suffix unifies all layers; the verb prefix reflects what each
+   layer does.** Methods for one event share the `_on_<event>` tail across the
+   Action, StateController, and component controllers — so the event is traceable
+   end-to-end by one name. The verb prefix may differ where a layer's operation is
+   semantically distinct:
+
+   - `reset_on_clear_chat` — a reset; all layers use the same full name.
+   - `add_message_on_send` (StateController), `reset_on_send_result` (chat_area),
+     `reset_on_send_cleared` (input_bar) — the send event adds to state and resets
+     UI; the prefix reflects each layer's own concept, not a single shared verb.
+
+   When an event is purely a reset at every layer, the full name is identical
+   everywhere. When layers do different things for the same event, only the suffix
+   is guaranteed to align.
+
+5. **Threaded events follow the same shape, split across callbacks.** Busy toggling
+   wraps the operation; the semantic UI update is still one event-method per
+   controller in `_on_result` / `_on_error`:
+
+   ```python
+   def _on_result(self, index) -> None:
+       self._set_busy(False)                                          # busy gate off
+       self._toolbar.reset_on_project_loaded(                        # one call per controller
+           os.path.basename(index.project_path)
+       )
        self._chat_area.reset_on_project_loaded()
    ```
 
 6. **Busy toggling is the allowed fine-grained exception.** Enable/disable during a
-   threaded run (`set_busy` → `set_enabled(False/True)`) is a cross-cutting UI-state
-   toggle, not an event reset, and may stay as direct `set_enabled` calls. The
-   event-shaped rule applies to the event's *semantic* updates, not the busy gate.
+   threaded run (`_set_busy` → `set_enabled(False/True)`) is a cross-cutting
+   UI-state toggle, not an event reset, and stays as direct `set_enabled` calls in
+   a private helper. The event-shaped rule applies to the event's *semantic* updates,
+   not the busy gate.
 
 ---
 
@@ -137,6 +182,6 @@ controller and the component controllers.
 - The handler is the **single place** that knows *which* layers an event touches;
   each controller/state method is the single place that knows *what* its own layer
   does for that event.
-- The same **one-method-per-event** verb (`reset_on_clear_chat`) runs through the
-  action, the StateController, and every component controller — so an entire event
-  is traceable end-to-end by one name, and each layer owns exactly its own slice.
+- The `_on_<event>` suffix runs through the action, the StateController, and every
+  component controller — so an entire event is traceable end-to-end by suffix, and
+  each layer owns exactly its own slice.
